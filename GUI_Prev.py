@@ -3,17 +3,25 @@ from tkinter import ttk
 import matplotlib.pyplot as plt
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 import numpy as np
+import csv
+import math
 
 # Constants
 GRAVITY = 9.81  # m/s^2, acceleration due to gravity
 
 # Global variables
 current_energy = 0  # In joules
-mass = 1.0  # Default mass in kg
+mass = 2.0  # Default mass in kg
 
 def calculate_height(energy):
     """Calculate the height from energy."""
     return energy / (mass * GRAVITY)
+
+def calculate_drop_time(height):
+    """Calculate the time it takes for the ball to drop from the given height."""
+    if height <= 0:
+        return 0
+    return math.sqrt(2 * height / GRAVITY)
 
 def update_plot(accelerometer_data):
     """Update the plot with accelerometer data only."""
@@ -70,13 +78,40 @@ def raise_ball():
 def drop_ball():
     """Reset the energy to 0 and recalculate the height."""
     global current_energy
+    global drop_time, accelerometer_data
+    height = calculate_height(current_energy)
+    drop_time = calculate_drop_time(height)
+    print("drop time:",drop_time)
     current_energy = 0  # Reset energy to 0
     update_display()
     drop_button.config(state="disabled")  # Disable the drop button
 
+    # Simulate accelerometer data
+    total_time = drop_time + 1  # Add 1 second after the drop
+    print("total time:",total_time)
+    sample_rate = 100  # Samples per second
+    time_points = np.linspace(0, total_time, int(total_time * sample_rate))
+    accelerometer_data = GRAVITY * np.ones_like(time_points)  # Constant acceleration for simplicity
+    export_button.config(state="normal")  # Enable export button
+
+def export_data():
+    """Export the drop data to a CSV file."""
+    global drop_time, accelerometer_data
+    total_time = drop_time + 1  # Total duration
+    sample_rate = 100  # Samples per second
+    time_points = np.linspace(0, total_time, int(total_time * sample_rate))
+
+    with open("drop_data.csv", "w", newline="") as file:
+        writer = csv.writer(file)
+        writer.writerow(["Time (s)", "Acceleration (m/s^2)"])
+        for t, a in zip(time_points, accelerometer_data):
+            writer.writerow([t, a])
+
+    export_button.config(state="disabled")  # Disable the export button after saving
+
 # Simulated accelerometer data
-time = np.linspace(0, 10, 100)  # Simulate 10 seconds
-accelerometer_data = 5 * np.sin(2 * np.pi * 0.5 * time)  # Example sinusoidal data
+accelerometer_data = np.array([])  # Placeholder for accelerometer data
+drop_time = 0  # Placeholder for drop time
 
 # GUI Setup
 root = tk.Tk()
@@ -115,13 +150,15 @@ mass_entry = ttk.Entry(main_frame, textvariable=mass_var, width=10)
 mass_entry.grid(row=1, column=1, padx=5, pady=5, sticky="e")
 mass_entry.bind("<Return>", change_mass)  # Trigger mass change on Enter key
 
-# Buttons for Raising and Dropping
+# Buttons for Raising, Dropping, and Exporting
 button_frame = ttk.Frame(root, padding="10")
 button_frame.grid(row=1, column=0, sticky="ew")
 raise_button = ttk.Button(button_frame, text="Raise Ball", command=raise_ball)
 raise_button.grid(row=0, column=0, padx=10, pady=5, sticky="ew")
 drop_button = ttk.Button(button_frame, text="Drop Ball", command=drop_ball, state="disabled")
 drop_button.grid(row=0, column=1, padx=10, pady=5, sticky="ew")
+export_button = ttk.Button(button_frame, text="Export Data", command=export_data, state="disabled")
+export_button.grid(row=0, column=2, padx=10, pady=5, sticky="ew")
 
 # Force and Height Display Section
 force_frame = ttk.LabelFrame(root, text="Energy, Mass, and Height Calculation", padding="10")
