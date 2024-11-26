@@ -53,14 +53,13 @@ def update_display():
     """Update the energy, mass, height, and photocell velocity display in the app."""
     global current_energy, photocell_velocity
     height = calculate_height(current_energy)
-    force = mass * GRAVITY * height
     if photocell_velocity is not None:
         peak_velocity = np.max(photocell_velocity)
     else:
         peak_velocity = 0
-    force_label.config(
+    energy_label.config(
         text=f"Energy: {current_energy:.2f} J\nMass: {mass:.2f} kg\n"
-             f"Height: {height:.2f} m\nForce: {force:.2f} N\n"
+             f"Height: {height:.2f} m\n"
              f"Photocell Peak Velocity: {peak_velocity:.2f} m/s"
     )
 
@@ -106,7 +105,6 @@ def drop_impactor():
     height = calculate_height(current_energy)
     height_before_drop = height
     drop_time = calculate_drop_time(height)
-    force = mass * GRAVITY
     export_energy = current_energy
     current_energy = 0  # Reset energy to 0
     update_display()
@@ -131,8 +129,8 @@ def export_data():
     with open("output_data.csv", "w", newline="") as file:
         writer = csv.writer(file)
         # Write metadata as headers
-        writer.writerow(["Energy (J)", "Height (m)", "Force (N)", "Mass (kg)", "Photocell Impact Velocity (m/s)"])
-        writer.writerow([export_energy, height_before_drop, force, mass, np.max(photocell_velocity)])
+        writer.writerow(["Energy (J)", "Height (m)", "Mass (kg)", "Photocell Impact Velocity (m/s)"])
+        writer.writerow([export_energy, height_before_drop, mass, np.max(photocell_velocity)])
         writer.writerow([])  # Empty row
         writer.writerow(["Time (s)", "Deformation Acceleration (arbitrary units)"])
         # Write data points
@@ -188,13 +186,13 @@ drop_button.grid(row=0, column=1, padx=10, pady=5, sticky="ew")
 export_button = ttk.Button(button_frame, text="Export Data", command=export_data, state="disabled")
 export_button.grid(row=0, column=2, padx=10, pady=5, sticky="ew")
 
-# Force and Height Display Section
-force_frame = ttk.LabelFrame(root, text="Energy, Mass, Height, Force, and Photocell Velocity", padding="10")
-force_frame.grid(row=2, column=0, sticky="nsew", padx=10, pady=10)
-force_frame.columnconfigure(0, weight=1)
+# Energy and Height Display Section
+energy_frame = ttk.LabelFrame(root, text="Energy, Mass, Height and Photocell Velocity", padding="10")
+energy_frame.grid(row=2, column=0, sticky="nsew", padx=10, pady=10)
+energy_frame.columnconfigure(0, weight=1)
 
-force_label = ttk.Label(force_frame, text="Energy: 0.00 J\nMass: 1.00 kg\nHeight: 0.00 m\nForce: 0.00 N\nPhotocell Peak Velocity: 0.00 m/s", font=("Arial", 12))
-force_label.grid(row=0, column=0, padx=10, pady=10, sticky="nsew")
+energy_label = ttk.Label(energy_frame, text="Energy: 0.00 J\nMass: 1.00 kg\nHeight: 0.00 m\nPhotocell Peak Velocity: 0.00 m/s", font=("Arial", 12))
+energy_label.grid(row=0, column=0, padx=10, pady=10, sticky="nsew")
 
 # Matplotlib Figure
 fig, ax = plt.subplots(figsize=(10, 8))
