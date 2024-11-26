@@ -93,11 +93,6 @@ def change_mass(event=None):
     except ValueError:
         mass_var.set("Invalid")  # Indicate invalid input
 
-def height_and_force_feed_to_export_button(height_before_drop,  force):
-    test = 0
-
-
-
 def raise_impactor():
     """Set the impactor's energy and calculate the height."""
     global current_energy
@@ -125,7 +120,6 @@ def drop_impactor():
 
     # Update the plot
     update_plot(time_points, deformation_acceleration)
-
     export_button.config(state="normal")  # Enable export button
 
 
@@ -202,13 +196,13 @@ force_label = ttk.Label(force_frame, text="Energy: 0.00 J\nMass: 1.00 kg\nHeight
 force_label.grid(row=0, column=0, padx=10, pady=10, sticky="nsew")
 
 # Matplotlib Figure
-fig, ax = plt.subplots(figsize=(6, 4))
+fig, ax = plt.subplots(figsize=(10, 10))
 canvas = FigureCanvasTkAgg(fig, master=root)
 canvas_widget = canvas.get_tk_widget()
 canvas_widget.grid(row=3, column=0, sticky="nsew", padx=10, pady=10)
 
 # Configure plot row for maximum space
-root.rowconfigure(3, weight=5)  # Make the plot row the largest component
+root.rowconfigure(3, weight=5) # Make the plot row the largest component
 
 # Run the application
 root.mainloop()
