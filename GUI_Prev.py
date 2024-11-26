@@ -101,7 +101,7 @@ def raise_impactor():
 
 def drop_impactor():
     """Simulate the drop and calculate the deformation and photocell velocity."""
-    global current_energy, time_points, deformation_acceleration, photocell_velocity, height_before_drop, force, export_energy
+    global current_energy, time_points, deformation_acceleration, photocell_velocity, height_before_drop, export_energy
     height = calculate_height(current_energy)
     height_before_drop = height
     drop_time = calculate_drop_time(height)
