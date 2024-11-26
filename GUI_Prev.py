@@ -53,7 +53,7 @@ def update_display():
     """Update the energy, mass, height, and photocell velocity display in the app."""
     global current_energy, photocell_velocity
     height = calculate_height(current_energy)
-    force = mass * GRAVITY
+    force = mass * GRAVITY * height
     if photocell_velocity is not None:
         peak_velocity = np.max(photocell_velocity)
     else:
