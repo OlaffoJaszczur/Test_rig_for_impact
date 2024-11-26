@@ -102,11 +102,12 @@ def raise_impactor():
 
 def drop_impactor():
     """Simulate the drop and calculate the deformation and photocell velocity."""
-    global current_energy, time_points, deformation_acceleration, photocell_velocity, height_before_drop, force
+    global current_energy, time_points, deformation_acceleration, photocell_velocity, height_before_drop, force, export_energy
     height = calculate_height(current_energy)
     height_before_drop = height
     drop_time = calculate_drop_time(height)
     force = mass * GRAVITY
+    export_energy = current_energy
     current_energy = 0  # Reset energy to 0
     update_display()
     drop_button.config(state="disabled")  # Disable the drop button
@@ -130,8 +131,8 @@ def export_data():
     with open("output_data.csv", "w", newline="") as file:
         writer = csv.writer(file)
         # Write metadata as headers
-        writer.writerow(["Height (m)", "Force (N)", "Mass (kg)", "Photocell Impact Velocity (m/s)"])
-        writer.writerow([height_before_drop, force, mass, np.max(photocell_velocity)])
+        writer.writerow(["Energy (J)", "Height (m)", "Force (N)", "Mass (kg)", "Photocell Impact Velocity (m/s)"])
+        writer.writerow([export_energy, height_before_drop, force, mass, np.max(photocell_velocity)])
         writer.writerow([])  # Empty row
         writer.writerow(["Time (s)", "Deformation Acceleration (arbitrary units)"])
         # Write data points
@@ -196,7 +197,7 @@ force_label = ttk.Label(force_frame, text="Energy: 0.00 J\nMass: 1.00 kg\nHeight
 force_label.grid(row=0, column=0, padx=10, pady=10, sticky="nsew")
 
 # Matplotlib Figure
-fig, ax = plt.subplots(figsize=(10, 10))
+fig, ax = plt.subplots(figsize=(10, 8))
 canvas = FigureCanvasTkAgg(fig, master=root)
 canvas_widget = canvas.get_tk_widget()
 canvas_widget.grid(row=3, column=0, sticky="nsew", padx=10, pady=10)
