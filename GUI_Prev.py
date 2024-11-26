@@ -15,7 +15,8 @@ mass = 2.0  # Default mass in kg
 
 def calculate_height(energy):
     """Calculate the height from energy."""
-    return energy / (mass * GRAVITY)
+    height = energy / (mass * GRAVITY)
+    return height
 
 def calculate_drop_time(height):
     """Calculate the time it takes for the ball to drop from the given height."""
@@ -23,18 +24,26 @@ def calculate_drop_time(height):
         return 0
     return math.sqrt(2 * height / GRAVITY)
 
-def update_plot(accelerometer_data):
-    """Update the plot with accelerometer data only."""
+def simulate_deformation_acceleration(total_time, sample_rate):
+    """Simulate deformation acceleration as a damped exponential decay."""
+    time_points = np.linspace(0, total_time, int(total_time * sample_rate))
+    A = 200  # Initial peak acceleration (arbitrary units)
+    b = 10   # Damping coefficient
+    acceleration = A * np.exp(-b * time_points)
+    return time_points, acceleration
+
+def update_plot(time_points, acceleration):
+    """Update the plot with the simulated deformation acceleration."""
     ax.clear()
-    ax.plot(accelerometer_data, label="Accelerometer Data")
-    ax.set_title("Accelerometer Data")
-    ax.set_xlabel("Time (arbitrary units)")
-    ax.set_ylabel("Acceleration (m/s^2)")
+    ax.plot(time_points, acceleration, label="Deformation Acceleration")
+    ax.set_title("Deformation Acceleration on Steel Plate")
+    ax.set_xlabel("Time (s)")
+    ax.set_ylabel("Acceleration (arbitrary units)")
     ax.legend()
     canvas.draw()
 
 def update_display():
-    """Update the force and height display in the app."""
+    """Update the energy, mass, and height display in the app."""
     global current_energy
     height = calculate_height(current_energy)
     force_label.config(text=f"Energy: {current_energy:.2f} J\nMass: {mass:.2f} kg\nHeight: {height:.2f} m")
@@ -48,7 +57,7 @@ def manual_energy_entered(event=None):
     """Handle manual energy entry."""
     try:
         selected_energy = float(energy_var.get())
-        if 0 <= selected_energy <= 100:  # Energy range (adjust as needed)
+        if 0 <= selected_energy <= 10:  # Energy range (adjust as needed)
             slider.set(selected_energy)  # Update the slider to match the manual entry
         else:
             energy_var.set("Invalid")  # Indicate invalid input
@@ -76,46 +85,37 @@ def raise_ball():
     drop_button.config(state="normal")  # Enable the drop button
 
 def drop_ball():
-    """Reset the energy to 0 and recalculate the height."""
-    global current_energy
-    global drop_time, accelerometer_data
+    """Simulate the drop and calculate the deformation acceleration."""
+    global current_energy, time_points, deformation_acceleration
     height = calculate_height(current_energy)
     drop_time = calculate_drop_time(height)
-    print("drop time:",drop_time)
     current_energy = 0  # Reset energy to 0
     update_display()
     drop_button.config(state="disabled")  # Disable the drop button
 
-    # Simulate accelerometer data
-    total_time = drop_time + 1  # Add 1 second after the drop
-    print("total time:",total_time)
+    # Simulate deformation acceleration
+    total_time = 1.0  # Total deformation time (1 second for simplicity)
     sample_rate = 100  # Samples per second
-    time_points = np.linspace(0, total_time, int(total_time * sample_rate))
-    accelerometer_data = GRAVITY * np.ones_like(time_points)  # Constant acceleration for simplicity
+    time_points, deformation_acceleration = simulate_deformation_acceleration(total_time, sample_rate)
+
+    # Update the plot
+    update_plot(time_points, deformation_acceleration)
     export_button.config(state="normal")  # Enable export button
 
 def export_data():
-    """Export the drop data to a CSV file."""
-    global drop_time, accelerometer_data
-    total_time = drop_time + 1  # Total duration
-    sample_rate = 100  # Samples per second
-    time_points = np.linspace(0, total_time, int(total_time * sample_rate))
-
-    with open("drop_data.csv", "w", newline="") as file:
+    """Export the deformation acceleration data to a CSV file."""
+    global time_points, deformation_acceleration
+    with open("deformation_acceleration.csv", "w", newline="") as file:
         writer = csv.writer(file)
-        writer.writerow(["Time (s)", "Acceleration (m/s^2)"])
-        for t, a in zip(time_points, accelerometer_data):
+        writer.writerow(["Time (s)", "Acceleration (arbitrary units)"])
+        for t, a in zip(time_points, deformation_acceleration):
             writer.writerow([t, a])
 
     export_button.config(state="disabled")  # Disable the export button after saving
 
-# Simulated accelerometer data
-accelerometer_data = np.array([])  # Placeholder for accelerometer data
-drop_time = 0  # Placeholder for drop time
-
 # GUI Setup
 root = tk.Tk()
-root.title("Raise and Drop Ball: Energy to Height Viewer")
+root.title("Raise and Drop Ball: Deformation Acceleration Viewer")
 
 # Configure dynamic resizing
 root.columnconfigure(0, weight=1)
@@ -131,7 +131,7 @@ main_frame.columnconfigure(1, weight=1)
 slider_label = ttk.Label(main_frame, text="Set Energy (J):")
 slider_label.grid(row=0, column=0, padx=5, pady=5, sticky="w")
 
-slider = ttk.Scale(main_frame, from_=0, to=100, orient="horizontal", command=slider_changed)
+slider = ttk.Scale(main_frame, from_=0, to=10, orient="horizontal", command=slider_changed)
 slider.grid(row=0, column=1, padx=5, pady=5, sticky="ew")
 
 energy_var = tk.StringVar()
@@ -176,9 +176,6 @@ canvas_widget.grid(row=3, column=0, sticky="nsew", padx=10, pady=10)
 
 # Configure plot row for maximum space
 root.rowconfigure(3, weight=5)  # Make the plot row the largest component
-
-# Initial plot
-update_plot(accelerometer_data)
 
 # Run the application
 root.mainloop()
