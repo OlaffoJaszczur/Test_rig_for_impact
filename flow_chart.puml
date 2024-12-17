@@ -35,6 +35,9 @@ endif
 stop'/
 
 start
+:Start application;
+while (Await user input) is (false)
+endwhile (true)
 :User inputs desired force;
 :Force is calculated to height;
 :Height is translated to number of servo rotations;
@@ -50,7 +53,11 @@ endwhile (true)
 :Wait 2s;
 :Stop recording tensometer data;
 :Plot acquired data;
+if (User can choose to export data to CSV) then (Yes)
 :On application exit export data to CSV;
+else (no)
+endif
+:Exit application;
 stop
 
 @enduml
