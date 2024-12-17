@@ -38,6 +38,7 @@ start
 :Start application;
 while (Await user input) is (false)
 endwhile (true)
+:User can change predefined mass;
 :User inputs desired force;
 :Force is calculated to height;
 :Height is translated to number of servo rotations;
