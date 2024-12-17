@@ -1,0 +1,56 @@
+@startuml
+'https://plantuml.com/activity-diagram-beta
+
+/'start
+:ClickServlet.handleRequest();
+:new page;
+if (Page.onSecurityCheck) then (true)
+  :Page.onInit();
+  if (isForward?) then (no)
+    :Process controls;
+    if (continue processing?) then (no)
+      stop
+    endif
+
+    if (isPost?) then (yes)
+      :Page.onPost();
+    else (no)
+      :Page.onGet();
+    endif
+    :Page.onRender();
+  endif
+else (false)
+endif
+
+if (do redirect?) then (yes)
+  :redirect process;
+else
+  if (do forward?) then (yes)
+    :Forward request;
+  else (no)
+    :Render page template;
+  endif
+endif
+
+stop'/
+
+start
+:User inputs desired force;
+:Force is calculated to height;
+:Height is translated to number of servo rotations;
+:Signal is sent to raise the Impactor;
+while (Impactor fully raised) is (false)
+endwhile (true)
+:Ready to drop;
+while (Await user activation) is (false)
+endwhile (true)
+:Start recording tensometer data;
+:Drop Impactor;
+:Record data from photocell;
+:Wait 2s;
+:Stop recording tensometer data;
+:Plot acquired data;
+:On application exit export data to CSV;
+stop
+
+@enduml

@@ -1,0 +1,18 @@
+@startuml
+'https://plantuml.com/sequence-diagram
+
+autonumber
+Master_python -> Slave_c: Height to which raise the Impactor
+Slave_c --> Master_python: Response that Impartor have been raised to designated height
+
+Master_python -> Slave_c: Drop the Impctor
+Slave_c --> Master_python: Response that Impactor was detached
+
+Master_python -> Slave_c: Start sending data
+Slave_c --> Master_python: Continuosly sending tensometer data
+
+Slave_c --> Master_python: Send velocity from photocell
+
+Master_python -> Slave_c: Stop sending data
+Slave_c --> Master_python: Stops sending data
+@enduml
