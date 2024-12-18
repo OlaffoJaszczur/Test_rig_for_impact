@@ -12,6 +12,7 @@ Master_python -> Slave_c: Start sending data
 Slave_c --> Master_python: Continuosly sending tensometer data
 
 Slave_c --> Master_python: Send velocity from photocell
+Slave_c --> Master_python: Send flag change
 
 Master_python -> Slave_c: Stop sending data
 Slave_c --> Master_python: Stops sending data

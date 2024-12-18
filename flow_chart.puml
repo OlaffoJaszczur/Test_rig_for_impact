@@ -48,11 +48,11 @@ endwhile (true)
 :Ready to drop;
 while (Await user activation) is (false)
 endwhile (true)
-:Start recording tensometer data;
+:Start recording accelerometr data;
 :Drop Impactor;
 :Record data from photocell;
-:Wait 2s;
-:Stop recording tensometer data;
+:Wait for a flag change;
+:Stop recording accelerometr data;
 :Plot acquired data;
 if (User can choose to export data to CSV) then (Yes)
 :On application exit export data to CSV;
