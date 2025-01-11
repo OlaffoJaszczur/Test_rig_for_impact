@@ -2,7 +2,7 @@
 #include <stdbool.h>
 
 #include "main.h"
-#include "stm_init.c"
+#include "init.c"
 #include "logic.c"
 
 #define SERVO_PWM_PIN GPIO_PIN_6
@@ -52,7 +52,8 @@ int main(void)
         Stop_Data_Recording();
         Plot_Data();
 
-        if (/* User chooses to export data */) {
+        if (/* User chooses to export data */) 
+        {
             Export_Data_To_CSV();
         }
 
