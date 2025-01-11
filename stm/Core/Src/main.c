@@ -52,7 +52,8 @@ int main(void)
         Stop_Data_Recording();
         Plot_Data();
 
-        if (/* User chooses to export data */) {
+        if (/* User chooses to export data */) 
+        {
             Export_Data_To_CSV();
         }
 
