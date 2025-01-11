@@ -2,7 +2,7 @@
 #include <stdbool.h>
 
 #include "main.h"
-#include "stm_init.c"
+#include "init.c"
 #include "logic.c"
 
 #define SERVO_PWM_PIN GPIO_PIN_6
