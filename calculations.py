@@ -16,10 +16,5 @@ class ImpactorSimulatorCalculations:
     def calculated_impact_velocity(self, calculated_drop_time):
         return self.GRAVITY * calculated_drop_time
 
-    def time_acceleration_relation(self,):
-
-        return
-
-    def photocell_velocity(self, ):
-
-        return
+    def red_photocell_velocity(self, photocell_time_data):
+        return self.GRAVITY * photocell_time_data  # probably will have to change as time will be provided in milisecons

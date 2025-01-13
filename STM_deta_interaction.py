@@ -1,9 +1,19 @@
 import threading
 import serial
 
+class Mock_serial:
+    def write(self, data):
+        print(data)
+
+    def read(self, size):
+        value = int(input())
+
+        return value.to_bytes(size, 'big')
+
 class STMDataInteraction:
     def __init__(self):
-        self.serial = serial.Serial('COM3', 9600)
+        #self.serial = serial.Serial('COM3', 9600) nee to later change this, for naw using mock fo rdebuging
+        self.serial = Mock_serial()
         self.thread = None
 
     def _wait_for_data(self, experiment_ended):
@@ -11,16 +21,17 @@ class STMDataInteraction:
         time_table = []
         acceleration_table = []
         while True:
-            last_time_sample = int.from_bytes(serial.read(4), 'big')
-            last_acceleration_sample = int.from_bytes(serial.read(4), 'big')
+            last_time_sample = int.from_bytes(self.serial.read(4), 'big')
+            last_acceleration_sample = int.from_bytes(self.serial.read(4), 'big')
 
             if last_time_sample == 000 and last_acceleration_sample == 000:
-                photocell_time_data = int.from_bytes(serial.read(4), 'big')
+                photocell_time_data = int.from_bytes(self.serial.read(4), 'big')
                 experiment_ended(photocell_time_data, time_table, acceleration_table)
                 break
 
             time_table.append(last_time_sample)
             acceleration_table.append(last_acceleration_sample)
+
 
     def _do_raise_impactor(self, on_raised):
         self.serial.write(b'1')

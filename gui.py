@@ -13,22 +13,25 @@ class ImpactorSimulatorGUI:
         self.root.title("Raise and Drop Impactor: Velocity Viewer")
         self._setup_gui()
 
-    def _setup_gui(self):
-        main_frame = ttk.Frame(self.root, padding="10")
-        main_frame.grid(row=0, column=0, sticky="ew")
-        main_frame.columnconfigure(1, weight=1)
+        self.main_frame.bind("<<raise_impactor>>", self.impactor_risen)
+        self.main_frame.bind("<<drop_impactor>>", self.impactor_dropped)
 
-        ttk.Label(main_frame, text="Set Energy (J):").grid(row=0, column=0, padx=5, pady=5, sticky="w")
-        self.slider = ttk.Scale(main_frame, from_=0, to=10, orient="horizontal", command=self.on_slider_change)
+    def _setup_gui(self):
+        self.main_frame = ttk.Frame(self.root, padding="10")
+        self.main_frame.grid(row=0, column=0, sticky="ew")
+        self.main_frame.columnconfigure(1, weight=1)
+
+        ttk.Label(self.main_frame, text="Set Energy (J):").grid(row=0, column=0, padx=5, pady=5, sticky="w")
+        self.slider = ttk.Scale(self.main_frame, from_=0, to=10, orient="horizontal", command=self.on_slider_change)
         self.slider.grid(row=0, column=1, padx=5, pady=5, sticky="ew")
         self.energy_var = tk.StringVar()
-        energy_entry = ttk.Entry(main_frame, textvariable=self.energy_var, width=10)
+        energy_entry = ttk.Entry(self.main_frame, textvariable=self.energy_var, width=10)
         energy_entry.grid(row=0, column=2, padx=5, pady=5, sticky="e")
         energy_entry.bind("<Return>", self.on_manual_energy_entry)
 
-        ttk.Label(main_frame, text="Set Mass (kg):").grid(row=1, column=0, padx=5, pady=5, sticky="w")
+        ttk.Label(self.main_frame, text="Set Mass (kg):").grid(row=1, column=0, padx=5, pady=5, sticky="w")
         self.mass_var = tk.StringVar(value=str(self.simulator.mass))
-        mass_entry = ttk.Entry(main_frame, textvariable=self.mass_var, width=10)
+        mass_entry = ttk.Entry(self.main_frame, textvariable=self.mass_var, width=10)
         mass_entry.grid(row=1, column=1, padx=5, pady=5, sticky="e")
         mass_entry.bind("<Return>", self.on_mass_change)
 
@@ -52,7 +55,7 @@ class ImpactorSimulatorGUI:
 
     def update_plot(self):
         self.ax.clear()
-        self.ax.plot(self.simulator.time_points, self.simulator.deformation_acceleration, label="Deformation Acceleration")
+        self.ax.plot(self.simulator.time_points, self.simulator.acceleration, label="Deformation Acceleration")
         self.ax.set_title("Deformation Acceleration on Steel Plate")
         self.ax.set_xlabel("Time (s)")
         self.ax.set_ylabel("Acceleration (arbitrary units)")
@@ -61,14 +64,14 @@ class ImpactorSimulatorGUI:
 
     def update_display(self):
         height = self.simulator.calculations.calculate_height(self.simulator.current_energy)
-        drop_time = self.simulator.calculations.calculated_drop_time(height)
-        impact_velocity = self.simulator.calculations.calculated_impact_velocity(drop_time)
-        peak_velocity = np.max(self.simulator.photocell_velocity) if self.simulator.photocell_velocity is not None else 0
+        drop_time = self.simulator.calculations.calculated_drop_time(self.simulator.height_before_drop)
+        calculated_impact_velocity = self.simulator.calculations.calculated_impact_velocity(drop_time)
+        peak_velocity = self.simulator.calculations.red_photocell_velocity(self.simulator.photocell_time_data) if self.simulator.photocell_velocity is not None else 0
         self.energy_label.config(
             text=f"Energy: {self.simulator.current_energy:.2f} J\nMass: {self.simulator.mass:.2f} kg\n"
                  f"Height: {height:.2f} m\n"
                  f"Photocell Peak Velocity: {peak_velocity:.2f} m/s\n"
-                 f"Predicted Impact Velocity: {impact_velocity:.2f} m/s"
+                 f"Predicted Impact Velocity: {calculated_impact_velocity:.2f} m/s"
         )
 
     def on_slider_change(self, event=None):
@@ -102,37 +105,46 @@ class ImpactorSimulatorGUI:
             self.mass_var.set("Invalid")
 
     def raise_impactor(self):
-        self.simulator.current_energy = self.slider.get()
-        self.update_display()
+        self.simulator.STM.rasie_impactor(lambda: self.main_frame.event_generate("<<raise_impactor>>"))
+
+    def impactor_risen(self, event):
         self.drop_button.config(state="normal")
 
     def drop_impactor(self):
         height = self.simulator.calculations.calculate_height(self.simulator.current_energy)
         self.simulator.height_before_drop = height
-        drop_time = self.simulator.calculations.calculated_drop_time(height)
         self.simulator.export_energy = self.simulator.current_energy
         self.simulator.current_energy = 0
 
-        total_time = drop_time + 1
-        sample_rate = 100
-        self.simulator.time_points, self.simulator.deformation_acceleration = self.simulator.calculations.simulate_deformation_acceleration(total_time, sample_rate)
-        max_velocity = np.sqrt(2 * self.simulator.GRAVITY * height)
-        self.simulator.photocell_velocity = self.simulator.calculations.photocell_velocity(max_velocity, total_time,
-                                                                                           sample_rate)
+        def data_received(photocell_time_data, time_table, acceleration_table):
+            self.simulator.photocell_time_data = photocell_time_data
+            self.simulator.time_points = time_table
+            self.simulator.acceleration = acceleration_table
+            self.main_frame.event_generate("<<drop_impactor>>")
+
+        self.simulator.STM.drop_impactor(data_received)
+
+    def impactor_dropped(self, event):
+        print(self.simulator.time_points)
+        print(self.simulator.acceleration)
+        print(self.simulator.photocell_time_data)
+
+        self.drop_button.config(state="disabled")
+        self.export_button.config(state="normal")
+
+        self.simulator.photocell_velocity = self.simulator.calculations.red_photocell_velocity(self.simulator.photocell_time_data)
 
         self.update_plot()
         self.update_display()
-        self.drop_button.config(state="disabled")
-        self.export_button.config(state="normal")
 
     def export_data(self):
         file_path = os.path.join("data", "output_data.csv")
         with open(file_path, "w", newline="") as file:
             writer = csv.writer(file)
             writer.writerow(["Energy (J)", "Height (m)", "Mass (kg)", "Photocell Impact Velocity (m/s)", "Predicted Impact Velocity (m/s)"])
-            writer.writerow([self.simulator.export_energy, self.simulator.height_before_drop, self.simulator.mass, np.max(self.simulator.photocell_velocity), self.simulator.calculations.calculated_impact_velocity(self.simulator.height_before_drop)])
+            writer.writerow([self.simulator.export_energy, self.simulator.height_before_drop, self.simulator.mass, self.simulator.calculations.calculated_impact_velocity(self.simulator.calculations.calculated_drop_time(self.simulator.height_before_drop)), self.simulator.calculations.calculated_impact_velocity(self.simulator.height_before_drop)])
             writer.writerow([])
             writer.writerow(["Time (s)", "Deformation Acceleration (arbitrary units)"])
-            for t, d in zip(self.simulator.time_points, self.simulator.deformation_acceleration):
+            for t, d in zip(self.simulator.time_points, self.simulator.acceleration):
                 writer.writerow([t, d])
         self.export_button.config(state="disabled")

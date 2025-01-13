@@ -13,10 +13,9 @@ class ImpactorSimulator:
         self.photocell_velocity = None
         self.height_before_drop = 0
         self.export_energy = 0
-        self.time_points = []
-        self.deformation_acceleration = []
 
         self.calculations = ImpactorSimulatorCalculations(self.mass, self.GRAVITY)
+        self.STM = STMDataInteraction()
 
         # Initialize GUI components
         self.root = tk.Tk()
@@ -31,11 +30,7 @@ class ImpactorSimulator:
     def calculated_impact_velocity(self, calculated_drop_time):
         return self.calculations.calculated_impact_velocity(calculated_drop_time)
 
-    def simulate_deformation_acceleration(self, total_time, sample_rate):
-        return self.calculations.simulate_deformation_acceleration(total_time, sample_rate)
 
-    def simulate_photocell_velocity(self, max_velocity, total_time, sample_rate):
-        return self.calculations.photocell_velocity(max_velocity, total_time, sample_rate)
 
     def run(self):
         self.root.mainloop()
