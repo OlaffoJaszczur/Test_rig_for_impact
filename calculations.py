@@ -18,3 +18,5 @@ class ImpactorSimulatorCalculations:
 
     def red_photocell_velocity(self, photocell_time_data):
         return self.GRAVITY * photocell_time_data  # probably will have to change as time will be provided in milisecons
+
+ #   def low_pass_filter(self, ):
