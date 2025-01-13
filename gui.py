@@ -62,7 +62,6 @@ class ImpactorSimulatorGUI:
     def update_display(self):
         height = self.simulator.calculations.calculate_height(self.simulator.current_energy)
         drop_time = self.simulator.calculations.calculated_drop_time(height)
-        print(drop_time) # Print calaculated drop time
         impact_velocity = self.simulator.calculations.calculated_impact_velocity(drop_time)
         peak_velocity = np.max(self.simulator.photocell_velocity) if self.simulator.photocell_velocity is not None else 0
         self.energy_label.config(
@@ -118,7 +117,8 @@ class ImpactorSimulatorGUI:
         sample_rate = 100
         self.simulator.time_points, self.simulator.deformation_acceleration = self.simulator.calculations.simulate_deformation_acceleration(total_time, sample_rate)
         max_velocity = np.sqrt(2 * self.simulator.GRAVITY * height)
-        self.simulator.photocell_velocity = self.simulator.calculations.simulate_photocell_velocity(max_velocity, total_time, sample_rate)
+        self.simulator.photocell_velocity = self.simulator.calculations.photocell_velocity(max_velocity, total_time,
+                                                                                           sample_rate)
 
         self.update_plot()
         self.update_display()

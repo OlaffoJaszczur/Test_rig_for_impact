@@ -16,12 +16,10 @@ class ImpactorSimulatorCalculations:
     def calculated_impact_velocity(self, calculated_drop_time):
         return self.GRAVITY * calculated_drop_time
 
-    def simulate_deformation_acceleration(self, total_time, sample_rate):
-        time_points = np.linspace(0, total_time, int(total_time * sample_rate))
-        A, b = 200, 10  # Peak acceleration and damping coefficient
-        return time_points, A * np.exp(-b * time_points)
+    def time_acceleration_relation(self,):
 
-    def simulate_photocell_velocity(self, max_velocity, total_time, sample_rate):
-        time_points = np.linspace(0, total_time, int(total_time * sample_rate))
-        b = 5  # Damping coefficient
-        return max_velocity * np.exp(-b * time_points)
+        return
+
+    def photocell_velocity(self, ):
+
+        return

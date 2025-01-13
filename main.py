@@ -1,6 +1,7 @@
 import tkinter as tk
 from calculations import ImpactorSimulatorCalculations
 from gui import ImpactorSimulatorGUI
+from STM_deta_interaction import STMDataInteraction
 
 
 
@@ -34,7 +35,7 @@ class ImpactorSimulator:
         return self.calculations.simulate_deformation_acceleration(total_time, sample_rate)
 
     def simulate_photocell_velocity(self, max_velocity, total_time, sample_rate):
-        return self.calculations.simulate_photocell_velocity(max_velocity, total_time, sample_rate)
+        return self.calculations.photocell_velocity(max_velocity, total_time, sample_rate)
 
     def run(self):
         self.root.mainloop()
