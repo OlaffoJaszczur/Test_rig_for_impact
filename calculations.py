@@ -2,16 +2,19 @@ import math
 import numpy as np
 
 class ImpactorSimulatorCalculations:
-    GRAVITY = 9.81  # m/s^2, acceleration due to gravity
 
-    def __init__(self, mass):
+    def __init__(self, mass, GRAVITY):
         self.mass = mass
+        self.GRAVITY = GRAVITY
 
     def calculate_height(self, energy):
         return energy / (self.mass * self.GRAVITY)
 
-    def calculate_drop_time(self, height):
+    def calculated_drop_time(self, height): # h = 1/2gt^2
         return math.sqrt(2 * height / self.GRAVITY) if height > 0 else 0
+
+    def calculated_impact_velocity(self, calculated_drop_time):
+        return self.GRAVITY * calculated_drop_time
 
     def simulate_deformation_acceleration(self, total_time, sample_rate):
         time_points = np.linspace(0, total_time, int(total_time * sample_rate))

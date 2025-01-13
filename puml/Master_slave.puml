@@ -6,12 +6,11 @@ Master_python -> Slave_c: Height to which raise the Impactor
 Slave_c --> Master_python: Response that Impartor have been raised to designated height
 
 Master_python -> Slave_c: Drop the Impctor
+Master_python -> Slave_c: Set flag Test_in_progress to 1
 Slave_c --> Master_python: Response that Impactor was detached
 
-Master_python -> Slave_c: Start sending data
-Slave_c --> Master_python: Continuosly sending tensometer data
-
-Slave_c --> Master_python: Send velocity from photocell
+Slave_c --> Master_python: Send time difference from photocell
+Slave_c --> Master_python: Send time and accelerometer data [tables]
 Slave_c --> Master_python: Send flag change
 
 Master_python -> Slave_c: Stop sending data

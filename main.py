@@ -2,6 +2,8 @@ import tkinter as tk
 from calculations import ImpactorSimulatorCalculations
 from gui import ImpactorSimulatorGUI
 
+
+
 class ImpactorSimulator:
     def __init__(self):
         self.GRAVITY = 9.81  # m/s^2, acceleration due to gravity
@@ -13,7 +15,7 @@ class ImpactorSimulator:
         self.time_points = []
         self.deformation_acceleration = []
 
-        self.calculations = ImpactorSimulatorCalculations(self.mass)
+        self.calculations = ImpactorSimulatorCalculations(self.mass, self.GRAVITY)
 
         # Initialize GUI components
         self.root = tk.Tk()
@@ -22,8 +24,11 @@ class ImpactorSimulator:
     def calculate_height(self, energy):
         return self.calculations.calculate_height(energy)
 
-    def calculate_drop_time(self, height):
-        return self.calculations.calculate_drop_time(height)
+    def calculated_drop_time(self, height):
+        return self.calculations.calculated_drop_time(height)
+
+    def calculated_impact_velocity(self, calculated_drop_time):
+        return self.calculations.calculated_impact_velocity(calculated_drop_time)
 
     def simulate_deformation_acceleration(self, total_time, sample_rate):
         return self.calculations.simulate_deformation_acceleration(total_time, sample_rate)

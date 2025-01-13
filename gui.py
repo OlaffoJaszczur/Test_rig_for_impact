@@ -40,7 +40,7 @@ class ImpactorSimulatorGUI:
         self.export_button = ttk.Button(button_frame, text="Export Data", command=self.export_data, state="disabled")
         self.export_button.grid(row=0, column=2, padx=10, pady=5)
 
-        energy_frame = ttk.LabelFrame(self.root, text="Energy, Mass, Height and Photocell Velocity", padding="10")
+        energy_frame = ttk.LabelFrame(self.root, text="Energy, Mass, Height, Photocell Velocity and Impact Velocity", padding="10")
         energy_frame.grid(row=2, column=0, sticky="nsew", padx=10, pady=10)
         self.energy_label = ttk.Label(energy_frame, text="", font=("Arial", 12))
         self.energy_label.grid(row=0, column=0, padx=10, pady=10)
@@ -61,11 +61,15 @@ class ImpactorSimulatorGUI:
 
     def update_display(self):
         height = self.simulator.calculations.calculate_height(self.simulator.current_energy)
+        drop_time = self.simulator.calculations.calculated_drop_time(height)
+        print(drop_time) # Print calaculated drop time
+        impact_velocity = self.simulator.calculations.calculated_impact_velocity(drop_time)
         peak_velocity = np.max(self.simulator.photocell_velocity) if self.simulator.photocell_velocity is not None else 0
         self.energy_label.config(
             text=f"Energy: {self.simulator.current_energy:.2f} J\nMass: {self.simulator.mass:.2f} kg\n"
                  f"Height: {height:.2f} m\n"
-                 f"Photocell Peak Velocity: {peak_velocity:.2f} m/s"
+                 f"Photocell Peak Velocity: {peak_velocity:.2f} m/s\n"
+                 f"Predicted Impact Velocity: {impact_velocity:.2f} m/s"
         )
 
     def on_slider_change(self, event=None):
@@ -106,7 +110,7 @@ class ImpactorSimulatorGUI:
     def drop_impactor(self):
         height = self.simulator.calculations.calculate_height(self.simulator.current_energy)
         self.simulator.height_before_drop = height
-        drop_time = self.simulator.calculations.calculate_drop_time(height)
+        drop_time = self.simulator.calculations.calculated_drop_time(height)
         self.simulator.export_energy = self.simulator.current_energy
         self.simulator.current_energy = 0
 
@@ -125,8 +129,8 @@ class ImpactorSimulatorGUI:
         file_path = os.path.join("data", "output_data.csv")
         with open(file_path, "w", newline="") as file:
             writer = csv.writer(file)
-            writer.writerow(["Energy (J)", "Height (m)", "Mass (kg)", "Photocell Impact Velocity (m/s)"])
-            writer.writerow([self.simulator.export_energy, self.simulator.height_before_drop, self.simulator.mass, np.max(self.simulator.photocell_velocity)])
+            writer.writerow(["Energy (J)", "Height (m)", "Mass (kg)", "Photocell Impact Velocity (m/s)", "Predicted Impact Velocity (m/s)"])
+            writer.writerow([self.simulator.export_energy, self.simulator.height_before_drop, self.simulator.mass, np.max(self.simulator.photocell_velocity), self.simulator.calculations.calculated_impact_velocity(self.simulator.height_before_drop)])
             writer.writerow([])
             writer.writerow(["Time (s)", "Deformation Acceleration (arbitrary units)"])
             for t, d in zip(self.simulator.time_points, self.simulator.deformation_acceleration):
