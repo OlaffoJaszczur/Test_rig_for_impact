@@ -55,7 +55,8 @@ class ImpactorSimulatorGUI:
 
     def update_plot(self):
         self.ax.clear()
-        self.ax.plot(self.simulator.time_points, self.simulator.acceleration, label="Deformation Acceleration")
+        self.simulator.time_points = np.arange(1, 101)  # only for testing !
+        self.ax.plot(self.simulator.time_points, self.simulator.acceleration_filtered, label="Deformation Acceleration")
         self.ax.set_title("Deformation Acceleration on Steel Plate")
         self.ax.set_xlabel("Time (s)")
         self.ax.set_ylabel("Acceleration (arbitrary units)")
@@ -64,7 +65,7 @@ class ImpactorSimulatorGUI:
 
     def update_display(self):
         height = self.simulator.calculations.calculate_height(self.simulator.current_energy)
-        drop_time = self.simulator.calculations.calculated_drop_time(self.simulator.height_before_drop)
+        drop_time = self.simulator.calculations.calculated_drop_time(height)
         calculated_impact_velocity = self.simulator.calculations.calculated_impact_velocity(drop_time)
         peak_velocity = self.simulator.calculations.red_photocell_velocity(self.simulator.photocell_time_data) if self.simulator.photocell_velocity is not None else 0
         self.energy_label.config(
@@ -125,26 +126,30 @@ class ImpactorSimulatorGUI:
         self.simulator.STM.drop_impactor(data_received)
 
     def impactor_dropped(self, event):
-        print(self.simulator.time_points)
-        print(self.simulator.acceleration)
-        print(self.simulator.photocell_time_data)
+        # print(self.simulator.time_points)
+        # print(self.simulator.acceleration)
+        # print(self.simulator.photocell_time_data)
 
         self.drop_button.config(state="disabled")
         self.export_button.config(state="normal")
 
         self.simulator.photocell_velocity = self.simulator.calculations.red_photocell_velocity(self.simulator.photocell_time_data)
 
-        self.update_plot()
         self.update_display()
+
+        self.simulator.acceleration_filtered = self.simulator.calculations.lowpass_filter(self.simulator.acceleration, 0.3, 16000, 5)
+        print(self.simulator.acceleration_filtered)
+
+        self.update_plot()
 
     def export_data(self):
         file_path = os.path.join("data", "output_data.csv")
         with open(file_path, "w", newline="") as file:
             writer = csv.writer(file)
             writer.writerow(["Energy (J)", "Height (m)", "Mass (kg)", "Photocell Impact Velocity (m/s)", "Predicted Impact Velocity (m/s)"])
-            writer.writerow([self.simulator.export_energy, self.simulator.height_before_drop, self.simulator.mass, self.simulator.calculations.calculated_impact_velocity(self.simulator.calculations.calculated_drop_time(self.simulator.height_before_drop)), self.simulator.calculations.calculated_impact_velocity(self.simulator.height_before_drop)])
+            writer.writerow([self.simulator.export_energy, self.simulator.height_before_drop, self.simulator.mass, self.simulator.calculations.calculated_impact_velocity(self.simulator.calculations.calculated_drop_time(self.simulator.height_before_drop)), self.simulator.calculations.calculated_impact_velocity(self.simulator.calculated_drop_time(self.simulator.height_before_drop))])
             writer.writerow([])
-            writer.writerow(["Time (s)", "Deformation Acceleration (arbitrary units)"])
-            for t, d in zip(self.simulator.time_points, self.simulator.acceleration):
-                writer.writerow([t, d])
+            writer.writerow(["Time (s)", "Deformation Acceleration (arbitrary units)", "Filtered Acceleration (arbitrary units)"])
+            for t, ra, fa in zip(self.simulator.time_points, self.simulator.acceleration, self.simulator.acceleration_filtered):
+                writer.writerow([t, ra, fa])
         self.export_button.config(state="disabled")

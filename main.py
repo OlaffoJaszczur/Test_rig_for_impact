@@ -9,7 +9,7 @@ class ImpactorSimulator:
     def __init__(self):
         self.GRAVITY = 9.81  # m/s^2, acceleration due to gravity
         self.current_energy = 0
-        self.mass = 2.0
+        self.mass = 1.0
         self.photocell_velocity = None
         self.height_before_drop = 0
         self.export_energy = 0
