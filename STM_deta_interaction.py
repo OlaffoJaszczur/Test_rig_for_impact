@@ -12,7 +12,7 @@ class Mock_serial:
 
 class STMDataInteraction:
     def __init__(self):
-        #self.serial = serial.Serial('COM3', 9600) nee to later change this, for naw using mock fo rdebuging
+        #self.serial = serial.Serial('COM3', 9600) # need to later change this, for naw using mock fo rdebuging
         self.serial = Mock_serial() # to be replaced !!!
         self.thread = None
 
@@ -34,15 +34,18 @@ class STMDataInteraction:
             acceleration_table.append(last_acceleration_sample)
 
 
-    def _do_raise_impactor(self, on_raised):
+    def _do_raise_impactor(self, on_raised, height):
         self.serial.write(b'1')
+        height = int(height * 1000)
+        print(height)
+        self.serial.write(height.to_bytes(4, 'big'))
         self.serial.read(1)
         on_raised()
 
-    def rasie_impactor(self, on_raised):
+    def rasie_impactor(self, on_raised, height):
         if self.thread is not None:
             self.thread.join()
-        self.thread = threading.Thread(target=self._do_raise_impactor, args=(on_raised,))
+        self.thread = threading.Thread(target=self._do_raise_impactor, args=(on_raised, height))
         self.thread.start()
 
     def drop_impactor(self, experiment_ended):

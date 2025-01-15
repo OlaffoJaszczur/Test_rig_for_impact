@@ -119,7 +119,8 @@ class ImpactorSimulatorGUI:
             self.mass_var.set("Invalid")
 
     def raise_impactor(self):
-        self.simulator.STM.rasie_impactor(lambda: self.main_frame.event_generate("<<raise_impactor>>"))
+        height = self.simulator.calculations.calculate_height(self.simulator.current_energy)
+        self.simulator.STM.rasie_impactor(lambda: self.main_frame.event_generate("<<raise_impactor>>"), height)
 
     def impactor_risen(self, event):
         self.drop_button.config(state="normal")
@@ -160,7 +161,7 @@ class ImpactorSimulatorGUI:
         with open(file_path, "w", newline="") as file:
             writer = csv.writer(file)
             writer.writerow(["Energy (J)", "Height (m)", "Mass (kg)", "Photocell Impact Velocity (m/s)", "Predicted Impact Velocity (m/s)"])
-            writer.writerow([self.simulator.export_energy, self.simulator.height_before_drop, self.simulator.mass, self.simulator.calculations.red_photocell_velocity(self.simulator.photocell_time_data), self.simulator.calculations.calculated_impact_velocity(self.simulator.calculated_drop_time(self.simulator.height_before_drop))])
+            writer.writerow([round(self.simulator.export_energy, 3), round(self.simulator.height_before_drop, 3), self.simulator.mass, round(self.simulator.calculations.red_photocell_velocity(self.simulator.photocell_time_data), 3), round(self.simulator.calculations.calculated_impact_velocity(self.simulator.calculated_drop_time(self.simulator.height_before_drop, 3)))])
             writer.writerow([])
             writer.writerow(["Time (s)", "Deformation Acceleration (arbitrary units)", "Filtered Acceleration (arbitrary units)"])
             for t, ra, fa in zip(self.simulator.time_points, self.simulator.acceleration, self.simulator.acceleration_filtered):
