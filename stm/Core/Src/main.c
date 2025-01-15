@@ -20,6 +20,56 @@ float predefined_mass = 1.0;
 float desired_force = 0.0;
 float drop_height = 0.0;
 
+void SystemClock_Config(void)
+{
+  RCC_OscInitTypeDef RCC_OscInitStruct = {0};
+  RCC_ClkInitTypeDef RCC_ClkInitStruct = {0};
+
+  RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_HSI;
+  RCC_OscInitStruct.HSIState = RCC_HSI_ON;
+  RCC_OscInitStruct.HSICalibrationValue = RCC_HSICALIBRATION_DEFAULT;
+  RCC_OscInitStruct.PLL.PLLState = RCC_PLL_NONE;
+  if (HAL_RCC_OscConfig(&RCC_OscInitStruct) != HAL_OK)
+  {
+    Error_Handler();
+  }
+
+  RCC_ClkInitStruct.ClockType = RCC_CLOCKTYPE_HCLK|RCC_CLOCKTYPE_SYSCLK
+                              |RCC_CLOCKTYPE_PCLK1;
+  RCC_ClkInitStruct.SYSCLKSource = RCC_SYSCLKSOURCE_HSI;
+  RCC_ClkInitStruct.AHBCLKDivider = RCC_SYSCLK_DIV1;
+  RCC_ClkInitStruct.APB1CLKDivider = RCC_HCLK_DIV1;
+
+  if (HAL_RCC_ClockConfig(&RCC_ClkInitStruct, FLASH_LATENCY_0) != HAL_OK)
+  {
+    Error_Handler();
+  }
+}
+
+static void MX_USART2_UART_Init(void)
+{
+  huart2.Instance = USART2;
+  huart2.Init.BaudRate = 38400;
+  huart2.Init.WordLength = UART_WORDLENGTH_8B;
+  huart2.Init.StopBits = UART_STOPBITS_1;
+  huart2.Init.Parity = UART_PARITY_NONE;
+  huart2.Init.Mode = UART_MODE_TX_RX;
+  huart2.Init.HwFlowCtl = UART_HWCONTROL_NONE;
+  huart2.Init.OverSampling = UART_OVERSAMPLING_16;
+  huart2.Init.OneBitSampling = UART_ONE_BIT_SAMPLE_DISABLE;
+  huart2.AdvancedInit.AdvFeatureInit = UART_ADVFEATURE_NO_INIT;
+  if (HAL_UART_Init(&huart2) != HAL_OK)
+  {
+    Error_Handler();
+  }
+}
+
+static void MX_GPIO_Init(void)
+{
+  __HAL_RCC_GPIOF_CLK_ENABLE();
+  __HAL_RCC_GPIOA_CLK_ENABLE();
+}
+
 int main(void)
 {
   HAL_Init();
@@ -27,38 +77,78 @@ int main(void)
   MX_GPIO_Init();
   MX_USART2_UART_Init();
 
-  while (1) 
+  if(serialConnection)
   {
-    if (user_input_ready) 
-    {
-        drop_height = desired_force / (predefined_mass * 9.81);
-
-        uint16_t servo_angle = (uint16_t)(drop_height * 10);
-
-        Servo_SetAngle(servo_angle);
-
-        impactor_ready = true;
-        user_input_ready = false;
-    }
-
-    if (impactor_ready && drop_ready) 
-    {
-        Start_Data_Recording();
-
-        Servo_SetAngle(0);
-
-        HAL_Delay(2000);
-
-        Stop_Data_Recording();
-        Plot_Data();
-
-        if (/* User chooses to export data */) 
+    while (1) 
+      {
+        
+        if (user_input_ready) 
         {
-            Export_Data_To_CSV();
+            drop_height = desired_force / (predefined_mass * 9.81);
+
+            uint16_t servo_angle = (uint16_t)(drop_height * 10);
+
+            Servo_SetAngle(servo_angle);
+
+            impactor_ready = true;
+            user_input_ready = false;
         }
 
-        drop_ready = false;
-        impactor_ready = false;
-    }
+        if (impactor_ready && drop_ready) 
+        {
+            Start_Data_Recording();
+
+            Servo_SetAngle(0);
+
+            HAL_Delay(2000);
+
+            Stop_Data_Recording();
+            Plot_Data();
+
+
+
+            drop_ready = false;
+            impactor_ready = false;
+        }
+      }
   }
+}
+
+bool serialConnection(void)
+{
+
+}
+
+
+
+void SystemClock_Config(void) {
+    // Configure the system clock (placeholder, adjust as needed)
+}
+
+void GPIO_Init(void) {
+    // Initialize GPIO for servo, photocell, etc.
+}
+
+void ADC_Init(void) {
+    // Initialize ADC for load cell
+}
+
+void TIM_PWM_Init(void) {
+    // Initialize PWM timer for servo control
+}
+
+void UART_Init(void) {
+    // Initialize UART for user communication
+}
+
+void setStepper(uint16_t angle) {
+    // Set servo position based on angle
+}
+
+void Start_Data_Recording(void) {
+    // Start recording data from sensors
+}
+
+void Stop_Data_Recording(void) {
+    // Stop recording data from sensors
 }
