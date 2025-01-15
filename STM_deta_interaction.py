@@ -20,6 +20,7 @@ class STMDataInteraction:
         self.serial.write(b'2')
         time_table = []
         acceleration_table = []
+
         while True:
             last_time_sample = int.from_bytes(self.serial.read(4), 'big')
             last_acceleration_sample = int.from_bytes(self.serial.read(4), 'big')

@@ -55,7 +55,6 @@ class ImpactorSimulatorGUI:
 
     def update_plot(self):
         self.ax.clear()
-        self.simulator.time_points = np.arange(1, 101)  # only for testing !
         self.ax.plot(self.simulator.time_points, self.simulator.acceleration_filtered, label="Deformation Acceleration")
         self.ax.set_title("Deformation Acceleration on Steel Plate")
         self.ax.set_xlabel("Time (s)")
