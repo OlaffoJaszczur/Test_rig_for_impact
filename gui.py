@@ -4,7 +4,6 @@ import matplotlib.pyplot as plt
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 import os
 import csv
-import numpy as np
 
 class ImpactorSimulatorGUI:
     def __init__(self, root, simulator):
@@ -18,8 +17,9 @@ class ImpactorSimulatorGUI:
 
     def _setup_gui(self):
         self.main_frame = ttk.Frame(self.root, padding="10")
-        self.main_frame.grid(row=0, column=0, sticky="ew")
+        self.main_frame.grid(row=0, column=0, sticky="nsew")
         self.main_frame.columnconfigure(1, weight=1)
+        self.main_frame.rowconfigure(0, weight=1)
 
         ttk.Label(self.main_frame, text="Set Energy (J):").grid(row=0, column=0, padx=5, pady=5, sticky="w")
         self.slider = ttk.Scale(self.main_frame, from_=0, to=10, orient="horizontal", command=self.on_slider_change)
@@ -37,6 +37,9 @@ class ImpactorSimulatorGUI:
 
         button_frame = ttk.Frame(self.root, padding="10")
         button_frame.grid(row=1, column=0, sticky="ew")
+        button_frame.columnconfigure(0, weight=1)
+        button_frame.columnconfigure(1, weight=1)
+        button_frame.columnconfigure(2, weight=1)
         ttk.Button(button_frame, text="Raise Impactor", command=self.raise_impactor).grid(row=0, column=0, padx=10, pady=5)
         self.drop_button = ttk.Button(button_frame, text="Drop Impactor", command=self.drop_impactor, state="disabled")
         self.drop_button.grid(row=0, column=1, padx=10, pady=5)
@@ -45,6 +48,8 @@ class ImpactorSimulatorGUI:
 
         energy_frame = ttk.LabelFrame(self.root, text="Energy, Mass, Height, Photocell Velocity and Impact Velocity", padding="10")
         energy_frame.grid(row=2, column=0, sticky="nsew", padx=10, pady=10)
+        energy_frame.columnconfigure(0, weight=1)
+        energy_frame.rowconfigure(0, weight=1)
         self.energy_label = ttk.Label(energy_frame, text="", font=("Arial", 12))
         self.energy_label.grid(row=0, column=0, padx=10, pady=10)
 
@@ -52,6 +57,12 @@ class ImpactorSimulatorGUI:
         self.canvas = FigureCanvasTkAgg(fig, master=self.root)
         canvas_widget = self.canvas.get_tk_widget()
         canvas_widget.grid(row=3, column=0, sticky="nsew", padx=10, pady=10)
+
+        self.root.columnconfigure(0, weight=1)
+        self.root.rowconfigure(0, weight=1)
+        self.root.rowconfigure(1, weight=1)
+        self.root.rowconfigure(2, weight=3)
+        self.root.rowconfigure(3, weight=2)
 
     def update_plot(self):
         self.ax.clear()
