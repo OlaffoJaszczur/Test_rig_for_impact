@@ -1,113 +1,70 @@
-/* USER CODE BEGIN Header */
-/**
-  ******************************************************************************
-  * @file           : main.c
-  * @brief          : Main program body
-  ******************************************************************************
-  * @attention
-  *
-  * Copyright (c) 2025 STMicroelectronics.
-  * All rights reserved.
-  *
-  * This software is licensed under terms that can be found in the LICENSE file
-  * in the root directory of this software component.
-  * If no LICENSE file comes with this software, it is provided AS-IS.
-  *
-  ******************************************************************************
-  */
-/* USER CODE END Header */
-/* Includes ------------------------------------------------------------------*/
 #include "main.h"
+#include <stdbool.h>
 
-/* Private includes ----------------------------------------------------------*/
-/* USER CODE BEGIN Includes */
+#define SERVO_PWM_PIN GPIO_PIN_6
+#define SERVO_GPIO_PORT GPIOA
+#define LOAD_CELL_ADC_CHANNEL ADC_CHANNEL_1
+#define PHOTOCELL_PIN GPIO_PIN_1
+#define PHOTOCELL_PORT GPIOB
 
-/* USER CODE END Includes */
-
-/* Private typedef -----------------------------------------------------------*/
-/* USER CODE BEGIN PTD */
-
-/* USER CODE END PTD */
-
-/* Private define ------------------------------------------------------------*/
-/* USER CODE BEGIN PD */
-
-/* USER CODE END PD */
-
-/* Private macro -------------------------------------------------------------*/
-/* USER CODE BEGIN PM */
-
-/* USER CODE END PM */
-
-/* Private variables ---------------------------------------------------------*/
 UART_HandleTypeDef huart2;
 
-/* USER CODE BEGIN PV */
+volatile bool user_input_ready = false;
+volatile bool impactor_ready = false;
+volatile bool drop_ready = false;
+float predefined_mass = 1.0;
+float desired_force = 0.0;
+float drop_height = 0.0;
 
-/* USER CODE END PV */
-
-/* Private function prototypes -----------------------------------------------*/
 void SystemClock_Config(void);
 static void MX_GPIO_Init(void);
 static void MX_USART2_UART_Init(void);
-/* USER CODE BEGIN PFP */
 
-/* USER CODE END PFP */
-
-/* Private user code ---------------------------------------------------------*/
-/* USER CODE BEGIN 0 */
-
-/* USER CODE END 0 */
-
-/**
-  * @brief  The application entry point.
-  * @retval int
-  */
 int main(void)
 {
-
-  /* USER CODE BEGIN 1 */
-
-  /* USER CODE END 1 */
-
-  /* MCU Configuration--------------------------------------------------------*/
-
-  /* Reset of all peripherals, Initializes the Flash interface and the Systick. */
   HAL_Init();
-
-  /* USER CODE BEGIN Init */
-
-  /* USER CODE END Init */
-
-  /* Configure the system clock */
   SystemClock_Config();
-
-  /* USER CODE BEGIN SysInit */
-
-  /* USER CODE END SysInit */
-
-  /* Initialize all configured peripherals */
   MX_GPIO_Init();
   MX_USART2_UART_Init();
-  /* USER CODE BEGIN 2 */
 
-  /* USER CODE END 2 */
-
-  /* Infinite loop */
-  /* USER CODE BEGIN WHILE */
   while (1)
   {
-    /* USER CODE END WHILE */
+    if(serialConnection)
+      {
+        while (1) 
+          {
+            
+            if (user_input_ready) 
+            {
+                drop_height = desired_force / (predefined_mass * 9.81);
 
-    /* USER CODE BEGIN 3 */
+                uint16_t servo_angle = (uint16_t)(drop_height * 10);
+
+                Servo_SetAngle(servo_angle);
+
+                impactor_ready = true;
+                user_input_ready = false;
+            }
+
+            if (impactor_ready && drop_ready) 
+            {
+                Start_Data_Recording();
+
+                Servo_SetAngle(0);
+
+                HAL_Delay(2000);
+
+                Stop_Data_Recording();
+                Plot_Data();
+
+                drop_ready = false;
+                impactor_ready = false;
+            }
+          }
+      }
   }
-  /* USER CODE END 3 */
 }
 
-/**
-  * @brief System Clock Configuration
-  * @retval None
-  */
 void SystemClock_Config(void)
 {
   RCC_OscInitTypeDef RCC_OscInitStruct = {0};
@@ -139,21 +96,8 @@ void SystemClock_Config(void)
   }
 }
 
-/**
-  * @brief USART2 Initialization Function
-  * @param None
-  * @retval None
-  */
 static void MX_USART2_UART_Init(void)
 {
-
-  /* USER CODE BEGIN USART2_Init 0 */
-
-  /* USER CODE END USART2_Init 0 */
-
-  /* USER CODE BEGIN USART2_Init 1 */
-
-  /* USER CODE END USART2_Init 1 */
   huart2.Instance = USART2;
   huart2.Init.BaudRate = 38400;
   huart2.Init.WordLength = UART_WORDLENGTH_8B;
@@ -168,47 +112,57 @@ static void MX_USART2_UART_Init(void)
   {
     Error_Handler();
   }
-  /* USER CODE BEGIN USART2_Init 2 */
-
-  /* USER CODE END USART2_Init 2 */
-
 }
 
-/**
-  * @brief GPIO Initialization Function
-  * @param None
-  * @retval None
-  */
 static void MX_GPIO_Init(void)
 {
-/* USER CODE BEGIN MX_GPIO_Init_1 */
-/* USER CODE END MX_GPIO_Init_1 */
-
-  /* GPIO Ports Clock Enable */
   __HAL_RCC_GPIOF_CLK_ENABLE();
   __HAL_RCC_GPIOA_CLK_ENABLE();
-
-/* USER CODE BEGIN MX_GPIO_Init_2 */
-/* USER CODE END MX_GPIO_Init_2 */
 }
 
-/* USER CODE BEGIN 4 */
+bool serialConnection(void)
+{
+    // Get connection with GUI
+}
 
-/* USER CODE END 4 */
+void SystemClock_Config(void) {
+    // Configure the system clock (placeholder, adjust as needed)
+}
 
-/**
-  * @brief  This function is executed in case of error occurrence.
-  * @retval None
-  */
+void GPIO_Init(void) {
+    // Initialize GPIO for servo, photocell, etc.
+}
+
+void ADC_Init(void) {
+    // Initialize ADC for load cell
+}
+
+void TIM_PWM_Init(void) {
+    // Initialize PWM timer for servo control
+}
+
+void UART_Init(void) {
+    // Initialize UART for user communication
+}
+
+void setStepper(uint16_t angle) {
+    // Set servo position based on angle
+}
+
+void Start_Data_Recording(void) {
+    // Start recording data from sensors
+}
+
+void Stop_Data_Recording(void) {
+    // Stop recording data from sensors
+}
+
 void Error_Handler(void)
 {
-  /* USER CODE BEGIN Error_Handler_Debug */
-  /* User can add his own implementation to report the HAL error return state */
   __disable_irq();
   while (1)
   {
   }
-  /* USER CODE END Error_Handler_Debug */
 }
 
 #ifdef  USE_FULL_ASSERT
