@@ -41,15 +41,13 @@ class ImpactorSimulatorGUI:
         button_frame.columnconfigure(0, weight=1)
         button_frame.columnconfigure(1, weight=1)
         button_frame.columnconfigure(2, weight=1)
-        ttk.Button(button_frame, text="Raise Impactor", command=self.raise_impactor).grid(row=0, column=0, padx=10,
-                                                                                          pady=5)
+        ttk.Button(button_frame, text="Raise Impactor", command=self.raise_impactor).grid(row=0, column=0, padx=10, pady=5)
         self.drop_button = ttk.Button(button_frame, text="Drop Impactor", command=self.drop_impactor, state="disabled")
         self.drop_button.grid(row=0, column=1, padx=10, pady=5)
         self.export_button = ttk.Button(button_frame, text="Export Data", command=self.export_data, state="disabled")
         self.export_button.grid(row=0, column=2, padx=10, pady=5)
 
-        energy_frame = ttk.LabelFrame(self.main_frame,
-                                      text="Energy, Mass, Height, Photocell Velocity and Impact Velocity", padding="10")
+        energy_frame = ttk.LabelFrame(self.main_frame, text="Energy, Mass, Height, Photocell Velocity and Predicted Impact Velocity", padding="10")
         energy_frame.grid(row=3, column=0, columnspan=3, sticky="nsew", padx=10, pady=10)
         energy_frame.columnconfigure(0, weight=1)
         energy_frame.rowconfigure(0, weight=1)
