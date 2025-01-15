@@ -12,7 +12,7 @@ class Mock_serial:
 
 class STMDataInteraction:
     def __init__(self):
-        #self.serial = serial.Serial('COM3', 9600) # need to later change this, for naw using mock fo rdebuging
+        #self.serial = serial.Serial('USART2', 38400) # need to later change this, for naw using mock fo rdebuging
         self.serial = Mock_serial() # to be replaced !!!
         self.thread = None
 
