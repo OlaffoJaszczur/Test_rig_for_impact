@@ -1,6 +1,7 @@
 import tkinter as tk
 from tkinter import ttk
 import matplotlib.pyplot as plt
+import numpy as np
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 import os
 import csv
@@ -35,19 +36,21 @@ class ImpactorSimulatorGUI:
         mass_entry.grid(row=1, column=1, padx=5, pady=5, sticky="e")
         mass_entry.bind("<Return>", self.on_mass_change)
 
-        button_frame = ttk.Frame(self.root, padding="10")
-        button_frame.grid(row=1, column=0, sticky="ew")
+        button_frame = ttk.Frame(self.main_frame, padding="10")
+        button_frame.grid(row=2, column=0, columnspan=3, sticky="ew")
         button_frame.columnconfigure(0, weight=1)
         button_frame.columnconfigure(1, weight=1)
         button_frame.columnconfigure(2, weight=1)
-        ttk.Button(button_frame, text="Raise Impactor", command=self.raise_impactor).grid(row=0, column=0, padx=10, pady=5)
+        ttk.Button(button_frame, text="Raise Impactor", command=self.raise_impactor).grid(row=0, column=0, padx=10,
+                                                                                          pady=5)
         self.drop_button = ttk.Button(button_frame, text="Drop Impactor", command=self.drop_impactor, state="disabled")
         self.drop_button.grid(row=0, column=1, padx=10, pady=5)
         self.export_button = ttk.Button(button_frame, text="Export Data", command=self.export_data, state="disabled")
         self.export_button.grid(row=0, column=2, padx=10, pady=5)
 
-        energy_frame = ttk.LabelFrame(self.root, text="Energy, Mass, Height, Photocell Velocity and Impact Velocity", padding="10")
-        energy_frame.grid(row=2, column=0, sticky="nsew", padx=10, pady=10)
+        energy_frame = ttk.LabelFrame(self.main_frame,
+                                      text="Energy, Mass, Height, Photocell Velocity and Impact Velocity", padding="10")
+        energy_frame.grid(row=3, column=0, columnspan=3, sticky="nsew", padx=10, pady=10)
         energy_frame.columnconfigure(0, weight=1)
         energy_frame.rowconfigure(0, weight=1)
         self.energy_label = ttk.Label(energy_frame, text="", font=("Arial", 12))
@@ -56,9 +59,10 @@ class ImpactorSimulatorGUI:
         fig, self.ax = plt.subplots(figsize=(10, 8))
         self.canvas = FigureCanvasTkAgg(fig, master=self.root)
         canvas_widget = self.canvas.get_tk_widget()
-        canvas_widget.grid(row=3, column=0, sticky="nsew", padx=10, pady=10)
+        canvas_widget.grid(row=0, column=1, rowspan=4, sticky="nsew", padx=10, pady=10)
 
         self.root.columnconfigure(0, weight=1)
+        self.root.columnconfigure(1, weight=2)
         self.root.rowconfigure(0, weight=1)
         self.root.rowconfigure(1, weight=1)
         self.root.rowconfigure(2, weight=3)
@@ -66,6 +70,7 @@ class ImpactorSimulatorGUI:
 
     def update_plot(self):
         self.ax.clear()
+        self.simulator.time_points = np.arange(1,101)  # only for testing !
         self.ax.plot(self.simulator.time_points, self.simulator.acceleration_filtered, label="Deformation Acceleration")
         self.ax.set_title("Deformation Acceleration on Steel Plate")
         self.ax.set_xlabel("Time (s)")
@@ -147,7 +152,7 @@ class ImpactorSimulatorGUI:
 
         self.update_display()
 
-        self.simulator.acceleration_filtered = self.simulator.calculations.lowpass_filter(self.simulator.acceleration, 0.3, 16000, 5)
+        self.simulator.acceleration_filtered = self.simulator.calculations.lowpass_filter(self.simulator.acceleration, 0.1, 16000, 5) # (data, cutoff, fs, order)
         print(self.simulator.acceleration_filtered)
 
         self.update_plot()
@@ -157,7 +162,7 @@ class ImpactorSimulatorGUI:
         with open(file_path, "w", newline="") as file:
             writer = csv.writer(file)
             writer.writerow(["Energy (J)", "Height (m)", "Mass (kg)", "Photocell Impact Velocity (m/s)", "Predicted Impact Velocity (m/s)"])
-            writer.writerow([self.simulator.export_energy, self.simulator.height_before_drop, self.simulator.mass, self.simulator.calculations.calculated_impact_velocity(self.simulator.calculations.calculated_drop_time(self.simulator.height_before_drop)), self.simulator.calculations.calculated_impact_velocity(self.simulator.calculated_drop_time(self.simulator.height_before_drop))])
+            writer.writerow([self.simulator.export_energy, self.simulator.height_before_drop, self.simulator.mass, self.simulator.calculations.red_photocell_velocity(self.simulator.photocell_time_data), self.simulator.calculations.calculated_impact_velocity(self.simulator.calculated_drop_time(self.simulator.height_before_drop))])
             writer.writerow([])
             writer.writerow(["Time (s)", "Deformation Acceleration (arbitrary units)", "Filtered Acceleration (arbitrary units)"])
             for t, ra, fa in zip(self.simulator.time_points, self.simulator.acceleration, self.simulator.acceleration_filtered):
