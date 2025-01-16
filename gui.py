@@ -151,7 +151,7 @@ class ImpactorSimulatorGUI:
 
         self.update_display()
 
-        self.simulator.acceleration_filtered = self.simulator.calculations.lowpass_filter(self.simulator.acceleration, 0.1, 16000, 5) # (data, cutoff, fs, order)
+        self.simulator.acceleration_filtered = self.simulator.calculations.lowpass_filter(self.simulator.acceleration, 0.1, 16000, 2) # (data, cutoff, fs, order)
         print(self.simulator.acceleration_filtered)
 
         self.update_plot()

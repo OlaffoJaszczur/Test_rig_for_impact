@@ -1,6 +1,7 @@
 import threading
 import serial
 
+# This is a mock class for the serial connection, to be used for debugging
 class Mock_serial:
     def write(self, data):
         print(data)
@@ -9,6 +10,9 @@ class Mock_serial:
         value = int(input())
 
         return value.to_bytes(size, 'big')
+
+    def close(self):
+        pass
 
 class STMDataInteraction:
     def __init__(self):

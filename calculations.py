@@ -31,4 +31,4 @@ class ImpactorSimulatorCalculations:
         print(data)
         self.b, self.a = self.butter_lowpass(cutoff, fs, order)
         self.filtered_data = filtfilt(self.b, self.a, data)
-        return self.filtered_data
+        return np.abs(self.filtered_data)
