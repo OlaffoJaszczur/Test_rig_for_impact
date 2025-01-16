@@ -1,15 +1,19 @@
 import threading
+
+import numpy as np
 import serial
 
 # This is a mock class for the serial connection, to be used for debugging
 class Mock_serial:
     def write(self, data):
-        print(data)
+        # print(data)
+        pass
 
     def read(self, size):
-        value = int(input())
-
-        return value.to_bytes(size, 'big')
+        # value = int(input())
+        #
+        # return value.to_bytes(size, 'big')
+        pass
 
     def close(self):
         pass
@@ -25,21 +29,25 @@ class STMDataInteraction:
         self.serial.read(1)
         acceleration_table = []
 
-        while True:
-            last_acceleration_sample = int.from_bytes(self.serial.read(4), 'big')
+        # while True:
+        #     last_acceleration_sample = int.from_bytes(self.serial.read(4), 'big')
+        #
+        #     if last_acceleration_sample == 000:
+        #         end_time = int.from_bytes(self.serial.read(4), 'big')
+        #         photocell_time_data = int.from_bytes(self.serial.read(4), 'big')
+        #         experiment_ended(photocell_time_data, end_time, acceleration_table)
+        #         break
+        #
+        #     acceleration_table.append(last_acceleration_sample)
 
-            if last_acceleration_sample == 000:
-                end_time = int.from_bytes(self.serial.read(4), 'big')
-                photocell_time_data = int.from_bytes(self.serial.read(4), 'big')
-                experiment_ended(photocell_time_data, end_time, acceleration_table)
-                break
-
-            acceleration_table.append(last_acceleration_sample)
+        end_time = 2
+        photocell_time_data = 1
+        acceleration_table = np.arange(1,21)
+        experiment_ended(photocell_time_data, end_time, acceleration_table)
 
 
     def _do_raise_impactor(self, on_raised, height):
-        self.serial.write(int(1234).to_bytes(4, 'big'))
-        self.serial.read(4)
+        self.serial.write(1)
         height = int(height * 1000)
         print(height)
         self.serial.write(height.to_bytes(4, 'big'))

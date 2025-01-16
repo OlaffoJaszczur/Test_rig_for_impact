@@ -3,12 +3,18 @@ from numpy.fft import fft
 from scipy.signal import butter, filtfilt
 
 import csv
+import  os
 
 class ImpactorSimulatorCalculations:
 
     def __init__(self, mass, GRAVITY):
         self.mass = mass
         self.GRAVITY = GRAVITY
+
+        # to be removed, only for the sake of the simulation !!!
+        self.velocity_of_ball_from_simulation_before_hit = 5.43
+        self.aditional_fall_time = 0.5537
+        self.Height_from_which_ball_fell = 1.5
 
     def calculate_height(self, energy):
         return energy / (self.mass * self.GRAVITY)
@@ -39,3 +45,22 @@ class ImpactorSimulatorCalculations:
 
     # zrobic band pass 100Hz to 200kHz
     # pasmo można wiziąc z symulacji od grzesia
+
+
+    def read_csv(self,):
+        self. time_data = []
+        self. acceleration_data = []
+
+        file_path = os.path.join(os.path.dirname(__file__), '..', 'data_from_simulation', 'tabelkaAcceleration.csv')
+        with open(file_path, 'r') as file:
+            reader = csv.DictReader(file)
+            for row in reader:
+                self. time_data.append(float(row['Time']))
+                self. acceleration_data.append(float(row['Acceleration']))
+
+        print(len(self.time_data))
+        print(len(self.acceleration_data))
+
+        return np.array(self.time_data), np.array(self.acceleration_data)
+
+
