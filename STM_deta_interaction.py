@@ -16,7 +16,7 @@ class Mock_serial:
 
 class STMDataInteraction:
     def __init__(self):
-        #self.serial = serial.Serial('/dev/ttyUSB0', 38400) # need to later change this, for naw using mock fo rdebuging
+        #self.serial = serial.Serial('/dev/ttyUSB0', 38400) # need to later change this, for naw using mock serial for debugging
         self.serial = Mock_serial() # to be replaced !!!
         self.thread = None
 
