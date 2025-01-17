@@ -1,66 +1,94 @@
 import numpy as np
-from numpy.fft import fft
-from scipy.signal import butter, filtfilt
-
+import matplotlib.pyplot as plt
 import csv
-import  os
+import os
+from scipy.signal import butter, filtfilt
+from scipy.fftpack import rfft, irfft, fftfreq
 
-class ImpactorSimulatorCalculations:
+def read_csv(file_path):
+    time_data = []
+    acceleration_data = []
 
-    def __init__(self, mass, GRAVITY):
-        self.mass = mass
-        self.GRAVITY = GRAVITY
+    with open(file_path, 'r') as file:
+        reader = csv.DictReader(file)
+        for row in reader:
+            time_data.append(float(row['Time']))
+            acceleration_data.append(float(row['Acceleration']))
 
-        # to be removed, only for the sake of the simulation !!!
-        self.velocity_of_ball_from_simulation_before_hit = 5.43
-        self.aditional_fall_time = 0.5537
-        self.Height_from_which_ball_fell = 1.5
+    return np.array(time_data), np.array(acceleration_data)
 
-    def calculate_height(self, energy):
-        return energy / (self.mass * self.GRAVITY)
+def butter_bandpass(lowcut, highcut, fs, order=2):
+    nyquist = 0.5 * fs
+    low = lowcut / nyquist
+    high = highcut / nyquist
+    b, a = butter(order, [low, high], btype='band')
+    return b, a
 
-    def calculated_drop_time(self, height): # h = 1/2gt^2
-        return np.sqrt(2 * height / self.GRAVITY) if height > 0 else 0
+def bandpass_filter(data, lowcut, highcut, fs, order=2):
+    b, a = butter_bandpass(lowcut, highcut, fs, order=order)
+    y = filtfilt(b, a, data)
+    return y
 
-    def calculated_impact_velocity(self, calculated_drop_time):
-        return self.GRAVITY * calculated_drop_time
+def plot_time_vs_acceleration(time_data, acceleration_data, filtered_data):
+    plt.figure(figsize=(12, 6))
+    plt.subplot(2, 1, 1)
+    plt.plot(time_data, acceleration_data, label='Original Acceleration Data')
+    plt.title('Time vs. Acceleration')
+    plt.xlabel('Time (s)')
+    plt.ylabel('Acceleration (m/s²)')
+    plt.legend()
 
-    def red_photocell_velocity(self, photocell_time_data):
-        return self.GRAVITY * photocell_time_data  # probably will have to change as time will be provided in milisecons
+    plt.subplot(2, 1, 2)
+    plt.plot(time_data, filtered_data, label='Filtered Acceleration Data')
+    plt.title('Time vs. Filtered Acceleration')
+    plt.xlabel('Time (s)')
+    plt.ylabel('Acceleration (m/s²)')
+    plt.legend()
 
-    def fft_of_acceleration(self, acceleration):
-        return fft(acceleration)
+    plt.tight_layout()
+    plt.show()
 
-    def butter_bandpass(self, lowcut, highcut, fs, order=2):
-        nyq = 0.5 * fs  # Nyquist Frequency
-        low = lowcut / nyq
-        high = highcut / nyq
-        b, a = butter(order, [low, high], btype='band')
-        return b, a
+def plot_frequency_spectrum(time_data, acceleration_data, fs):
+    N = len(acceleration_data)
+    T = time_data[1] - time_data[0]  # Assuming uniform sampling
+    fft_values = np.fft.fft(acceleration_data)
+    fft_freq = np.fft.fftfreq(N, T)
 
-    def bandpass_filter(self, data, lowcut, highcut, fs, order=2):
-        b, a = self.butter_bandpass(lowcut, highcut, fs, order=order)
-        self.filtered_data = filtfilt(b, a, data)
-        return np.abs(self.filtered_data)
+    # Apply band-pass filter
+    filtered_fft_values = bandpass_filter(fft_values, 100, 200000, fs)
 
-    # zrobic band pass 100Hz to 200kHz
-    # pasmo można wiziąc z symulacji od grzesia
+    # Compute the IFFT of the filtered data
+    ifft_values = np.fft.ifft(filtered_fft_values)
 
+    plt.figure(figsize=(12, 6))
+    plt.subplot(2, 1, 1)
+    plt.plot(fft_freq[:N//2], np.abs(fft_values)[:N//2], label='FFT Amplitude')
+    plt.title('Frequency Spectrum')
+    plt.xlabel('Frequency (Hz)')
+    plt.ylabel('Amplitude')
+    plt.legend()
 
-    def read_csv(self,):
-        self. time_data = []
-        self. acceleration_data = []
+    plt.subplot(2, 1, 2)
+    plt.plot(time_data, ifft_values.real, label='IFFT of Filtered Data')
+    plt.title('Time vs. IFFT of Filtered Data')
+    plt.xlabel('Time (s)')
+    plt.ylabel('Acceleration (m/s²)')
+    plt.legend()
 
-        file_path = os.path.join(os.path.dirname(__file__), '..', 'data_from_simulation', 'tabelkaAcceleration.csv')
-        with open(file_path, 'r') as file:
-            reader = csv.DictReader(file)
-            for row in reader:
-                self. time_data.append(float(row['Time']))
-                self. acceleration_data.append(float(row['Acceleration']))
+    plt.tight_layout()
+    plt.show()
 
-        print(len(self.time_data))
-        print(len(self.acceleration_data))
+# Read the data from the CSV file
+file_path = os.path.join(os.path.dirname(__file__), '..', 'data_from_simulation', 'tabelkaAcceleration.csv')
+time_data, acceleration_data = read_csv(file_path)
 
-        return np.array(self.time_data), np.array(self.acceleration_data)
+# Sampling frequency (fs)
+fs = 1 / (time_data[1] - time_data[0])
+print(fs)
 
+# Plot the time vs. acceleration data and the filtered data
+filtered_data = bandpass_filter(acceleration_data, 100, 200000, fs)
+plot_time_vs_acceleration(time_data, acceleration_data, filtered_data)
 
+# Plot the frequency spectrum and the IFFT of the filtered data
+plot_frequency_spectrum(time_data, acceleration_data, fs)
