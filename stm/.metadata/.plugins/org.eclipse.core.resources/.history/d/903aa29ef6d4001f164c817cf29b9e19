@@ -24,7 +24,6 @@
 
 #include "stdint.h"
 #include <stdbool.h>
-
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -96,7 +95,6 @@ bool uartDataRx(uint8_t *data, uint16_t size)
 
 uint32_t calcDelay(uint32_t height)
 {
-	// TODO: Get proper timing
   return height * 2;
 }
 
@@ -108,7 +106,7 @@ void raise_fun()
   uartDataTx(&response, sizeof(uint32_t));
   HAL_GPIO_WritePin(MAGNET_GPIO_Port, MAGNET_Pin, GPIO_PIN_SET); //zlap
   HAL_GPIO_WritePin(DIR_GPIO_Port, DIR_Pin, GPIO_PIN_RESET); //kierunek krokowki
-  uint32_t height = 100;
+  height = 100;
   currentHeight = height;
   uint32_t delay = calcDelay(height);
   HAL_TIM_PWM_Start(&htim3, TIM_CHANNEL_3);                  //wlaczenie pwm 100hz
@@ -126,7 +124,7 @@ void drop_fun()
   HAL_GPIO_WritePin(MAGNET_GPIO_Port, MAGNET_Pin, GPIO_PIN_RESET); //drop
   HAL_Delay(1000);
   //zbieranie danych
-  //wysylanie danych
+  //wssylanie danych
   HAL_GPIO_WritePin(DIR_GPIO_Port, DIR_Pin, GPIO_PIN_SET); //kierunek krokowki
   HAL_Delay(100);
   //stop get data
@@ -134,7 +132,7 @@ void drop_fun()
   HAL_TIM_PWM_Start(&htim3, TIM_CHANNEL_3);                  //wlaczenie pwm 100hz
   HAL_Delay(delay);                                          //czas trwania pwm
   HAL_TIM_PWM_Stop(&htim3, TIM_CHANNEL_3);
-uint32_t response = 2222;                                    //response drop done
+  response = 2222;                                           //response drop done
   uartDataTx(&response, sizeof(uint32_t));
 }
 
@@ -186,6 +184,8 @@ int main(void)
 
     /* USER CODE BEGIN 3 */
 
+    //usart
+
     uint32_t cmd;
 
     uartDataRx(&cmd, 4);
@@ -195,7 +195,6 @@ int main(void)
     case cmd_raise:
       raise_fun();
       break;
-
     case cmd_drop:
       drop_fun();
       break;
@@ -203,6 +202,20 @@ int main(void)
     default:
       break;
     }
+
+
+
+    //request 1
+    //response 1
+    //podnosi
+    //response podniesc
+    //request opusc
+    //response opusc
+
+    //1 podniesc
+    //2 puscic
+    //3 opuscic
+    //4 zmierzyc
   }
   /* USER CODE END 3 */
 }

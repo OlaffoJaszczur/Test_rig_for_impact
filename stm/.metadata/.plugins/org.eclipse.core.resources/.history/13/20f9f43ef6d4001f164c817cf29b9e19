@@ -22,19 +22,10 @@
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 
-#include "stdint.h"
-#include <stdbool.h>
-
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
 /* USER CODE BEGIN PTD */
-
-typedef enum cmd_t
-{
-  cmd_raise = 1234,
-  cmd_drop = 2345,
-} cmd_t;
 
 /* USER CODE END PTD */
 
@@ -75,68 +66,6 @@ static void MX_USART1_UART_Init(void);
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
-
-uint32_t currentHeight = 0;
-
-//-----------------------------------------------------------------------------//
-
-bool uartDataTx(uint8_t *data, uint16_t size)
-{
-  HAL_UART_Transmit(&huart1, data, size, 1000);
-  return true;
-}
-
-bool uartDataRx(uint8_t *data, uint16_t size)
-{
-  HAL_UART_Receive(&huart1, data, size, HAL_MAX_DELAY);
-  return true;
-}
-
-//-----------------------------------------------------------------------------//
-
-uint32_t calcDelay(uint32_t height)
-{
-	// TODO: Get proper timing
-  return height * 2;
-}
-
-//-----------------------------------------------------------------------------//
-
-void raise_fun()
-{
-  uint32_t response = 1234;
-  uartDataTx(&response, sizeof(uint32_t));
-  HAL_GPIO_WritePin(MAGNET_GPIO_Port, MAGNET_Pin, GPIO_PIN_SET); //zlap
-  HAL_GPIO_WritePin(DIR_GPIO_Port, DIR_Pin, GPIO_PIN_RESET); //kierunek krokowki
-  uint32_t height = 100;
-  currentHeight = height;
-  uint32_t delay = calcDelay(height);
-  HAL_TIM_PWM_Start(&htim3, TIM_CHANNEL_3);                  //wlaczenie pwm 100hz
-  HAL_Delay(delay);                                          //czas trwania pwm
-  HAL_TIM_PWM_Stop(&htim3, TIM_CHANNEL_3);
-  response = 1111;                                           //response raise done
-  uartDataTx(&response, sizeof(uint32_t));
-}
-
-void drop_fun()
-{
-  //start get
-  uint32_t adcValue[1000]; //stm32 adc dma
-  HAL_ADC_Start_DMA(&hadc1, &adcValue, 1000);
-  HAL_GPIO_WritePin(MAGNET_GPIO_Port, MAGNET_Pin, GPIO_PIN_RESET); //drop
-  HAL_Delay(1000);
-  //zbieranie danych
-  //wysylanie danych
-  HAL_GPIO_WritePin(DIR_GPIO_Port, DIR_Pin, GPIO_PIN_SET); //kierunek krokowki
-  HAL_Delay(100);
-  //stop get data
-  uint32_t delay = calcDelay(currentHeight);
-  HAL_TIM_PWM_Start(&htim3, TIM_CHANNEL_3);                  //wlaczenie pwm 100hz
-  HAL_Delay(delay);                                          //czas trwania pwm
-  HAL_TIM_PWM_Stop(&htim3, TIM_CHANNEL_3);
-uint32_t response = 2222;                                    //response drop done
-  uartDataTx(&response, sizeof(uint32_t));
-}
 
 /* USER CODE END 0 */
 
@@ -185,24 +114,6 @@ int main(void)
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
-
-    uint32_t cmd;
-
-    uartDataRx(&cmd, 4);
-
-    switch (cmd)
-    {
-    case cmd_raise:
-      raise_fun();
-      break;
-
-    case cmd_drop:
-      drop_fun();
-      break;
-
-    default:
-      break;
-    }
   }
   /* USER CODE END 3 */
 }

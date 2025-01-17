@@ -126,7 +126,7 @@ void drop_fun()
   HAL_GPIO_WritePin(MAGNET_GPIO_Port, MAGNET_Pin, GPIO_PIN_RESET); //drop
   HAL_Delay(1000);
   //zbieranie danych
-  //wysylanie danych
+  //wssylanie danych
   HAL_GPIO_WritePin(DIR_GPIO_Port, DIR_Pin, GPIO_PIN_SET); //kierunek krokowki
   HAL_Delay(100);
   //stop get data
