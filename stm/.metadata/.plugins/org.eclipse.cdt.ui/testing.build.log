@@ -1,0 +1,107 @@
+20:32:17 **** Incremental Build of configuration Debug for project testing ****
+make -j4 all 
+arm-none-eabi-gcc "../Core/Src/main.c" -mcpu=cortex-m3 -std=gnu11 -g3 -DDEBUG -DUSE_HAL_DRIVER -DSTM32F105xC -c -I../Core/Inc -I../Drivers/STM32F1xx_HAL_Driver/Inc -I../Drivers/STM32F1xx_HAL_Driver/Inc/Legacy -I../Drivers/CMSIS/Device/ST/STM32F1xx/Include -I../Drivers/CMSIS/Include -O0 -ffunction-sections -fdata-sections -Wall -fstack-usage -fcyclomatic-complexity -MMD -MP -MF"Core/Src/main.d" -MT"Core/Src/main.o" --specs=nano.specs -mfloat-abi=soft -mthumb -o "Core/Src/main.o"
+../Core/Src/main.c: In function 'moveStepper':
+../Core/Src/main.c:112:14: warning: passing argument 1 of 'uartDataRx' from incompatible pointer type [-Wincompatible-pointer-types]
+  112 |   uartDataRx(&height, sizeof(height));
+      |              ^~~~~~~
+      |              |
+      |              uint32_t * {aka long unsigned int *}
+../Core/Src/main.c:91:26: note: expected 'uint8_t *' {aka 'unsigned char *'} but argument is of type 'uint32_t *' {aka 'long unsigned int *'}
+   91 | bool uartDataRx(uint8_t *data, uint16_t size)
+      |                 ~~~~~~~~~^~~~
+../Core/Src/main.c:121:13: warning: passing argument 1 of 'HAL_Delay' makes integer from pointer without a cast [-Wint-conversion]
+  121 |   HAL_Delay(&delay);
+      |             ^~~~~~
+      |             |
+      |             uint32_t * {aka long unsigned int *}
+In file included from ../Core/Inc/main.h:30,
+                 from ../Core/Src/main.c:20:
+../Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal.h:296:25: note: expected 'uint32_t' {aka 'long unsigned int'} but argument is of type 'uint32_t *' {aka 'long unsigned int *'}
+  296 | void HAL_Delay(uint32_t Delay);
+      |                ~~~~~~~~~^~~~~
+../Core/Src/main.c: In function 'raise_fun':
+../Core/Src/main.c:132:14: warning: passing argument 1 of 'uartDataTx' from incompatible pointer type [-Wincompatible-pointer-types]
+  132 |   uartDataTx((uint32_t*)cmdToRaise, sizeof(cmdToRaise));
+      |              ^~~~~~~~~~~~~~~~~~~~~
+      |              |
+      |              uint32_t * {aka long unsigned int *}
+../Core/Src/main.c:84:26: note: expected 'uint8_t *' {aka 'unsigned char *'} but argument is of type 'uint32_t *' {aka 'long unsigned int *'}
+   84 | bool uartDataTx(uint8_t *data, uint16_t size)
+      |                 ~~~~~~~~~^~~~
+../Core/Src/main.c:141:14: warning: passing argument 1 of 'uartDataTx' from incompatible pointer type [-Wincompatible-pointer-types]
+  141 |   uartDataTx((uint32_t*)cmdRaised, sizeof(cmdRaised));
+      |              ^~~~~~~~~~~~~~~~~~~~
+      |              |
+      |              uint32_t * {aka long unsigned int *}
+../Core/Src/main.c:84:26: note: expected 'uint8_t *' {aka 'unsigned char *'} but argument is of type 'uint32_t *' {aka 'long unsigned int *'}
+   84 | bool uartDataTx(uint8_t *data, uint16_t size)
+      |                 ~~~~~~~~~^~~~
+../Core/Src/main.c: In function 'drop_fun':
+../Core/Src/main.c:147:14: warning: passing argument 1 of 'uartDataTx' from incompatible pointer type [-Wincompatible-pointer-types]
+  147 |   uartDataTx((uint32_t*)cmdToDrop, sizeof(cmdToDrop));
+      |              ^~~~~~~~~~~~~~~~~~~~
+      |              |
+      |              uint32_t * {aka long unsigned int *}
+../Core/Src/main.c:84:26: note: expected 'uint8_t *' {aka 'unsigned char *'} but argument is of type 'uint32_t *' {aka 'long unsigned int *'}
+   84 | bool uartDataTx(uint8_t *data, uint16_t size)
+      |                 ~~~~~~~~~^~~~
+../Core/Src/main.c:151:29: warning: passing argument 2 of 'HAL_ADC_Start_DMA' from incompatible pointer type [-Wincompatible-pointer-types]
+  151 |   HAL_ADC_Start_DMA(&hadc1, &adcValue, 1000);
+      |                             ^~~~~~~~~
+      |                             |
+      |                             uint32_t (*)[1000] {aka long unsigned int (*)[1000]}
+In file included from ../Core/Inc/stm32f1xx_hal_conf.h:274,
+                 from ../Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal.h:29:
+../Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal_adc.h:928:78: note: expected 'uint32_t *' {aka 'long unsigned int *'} but argument is of type 'uint32_t (*)[1000]' {aka 'long unsigned int (*)[1000]'}
+  928 | HAL_StatusTypeDef       HAL_ADC_Start_DMA(ADC_HandleTypeDef* hadc, uint32_t* pData, uint32_t Length);
+      |                                                                    ~~~~~~~~~~^~~~~
+../Core/Src/main.c:166:14: warning: passing argument 1 of 'uartDataTx' from incompatible pointer type [-Wincompatible-pointer-types]
+  166 |   uartDataTx((uint32_t*)timeDuration, sizeof(timeDuration));
+      |              ^~~~~~~~~~~~~~~~~~~~~~~
+      |              |
+      |              uint32_t * {aka long unsigned int *}
+../Core/Src/main.c:84:26: note: expected 'uint8_t *' {aka 'unsigned char *'} but argument is of type 'uint32_t *' {aka 'long unsigned int *'}
+   84 | bool uartDataTx(uint8_t *data, uint16_t size)
+      |                 ~~~~~~~~~^~~~
+../Core/Src/main.c:169:14: warning: passing argument 1 of 'uartDataTx' from incompatible pointer type [-Wincompatible-pointer-types]
+  169 |   uartDataTx((uint32_t*)adcValue, sizeof(adcValue));
+      |              ^~~~~~~~~~~~~~~~~~~
+      |              |
+      |              uint32_t * {aka long unsigned int *}
+../Core/Src/main.c:84:26: note: expected 'uint8_t *' {aka 'unsigned char *'} but argument is of type 'uint32_t *' {aka 'long unsigned int *'}
+   84 | bool uartDataTx(uint8_t *data, uint16_t size)
+      |                 ~~~~~~~~~^~~~
+../Core/Src/main.c:175:14: warning: passing argument 1 of 'uartDataTx' from incompatible pointer type [-Wincompatible-pointer-types]
+  175 |   uartDataTx((uint32_t*)cmdDropped, sizeof(cmdDropped));
+      |              ^~~~~~~~~~~~~~~~~~~~~
+      |              |
+      |              uint32_t * {aka long unsigned int *}
+../Core/Src/main.c:84:26: note: expected 'uint8_t *' {aka 'unsigned char *'} but argument is of type 'uint32_t *' {aka 'long unsigned int *'}
+   84 | bool uartDataTx(uint8_t *data, uint16_t size)
+      |                 ~~~~~~~~~^~~~
+../Core/Src/main.c: In function 'main':
+../Core/Src/main.c:233:5: warning: case label value exceeds maximum value for type [-Wswitch-outside-range]
+  233 |     case cmdToRaise:
+      |     ^~~~
+../Core/Src/main.c:237:5: warning: case label value exceeds maximum value for type [-Wswitch-outside-range]
+  237 |     case cmdToDrop:
+      |     ^~~~
+../Core/Src/main.c: In function 'moveStepper':
+../Core/Src/main.c:125:1: warning: control reaches end of non-void function [-Wreturn-type]
+  125 | }
+      | ^
+arm-none-eabi-gcc -o "testing.elf" @"objects.list"   -mcpu=cortex-m3 -T"/home/olek/Test_rig_for_impact/stm/testing/STM32F105R8TX_FLASH.ld" --specs=nosys.specs -Wl,-Map="testing.map" -Wl,--gc-sections -static --specs=nano.specs -mfloat-abi=soft -mthumb -Wl,--start-group -lc -lm -Wl,--end-group
+Finished building target: testing.elf
+ 
+arm-none-eabi-size  testing.elf 
+arm-none-eabi-objdump -h -S testing.elf  > "testing.list"
+   text	   data	    bss	    dec	    hex	filename
+  14496	     12	   1908	  16416	   4020	testing.elf
+Finished building: default.size.stdout
+ 
+Finished building: testing.list
+ 
+
+20:32:19 Build Finished. 0 errors, 12 warnings. (took 1s.846ms)
+
