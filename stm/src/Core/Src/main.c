@@ -102,23 +102,10 @@ uint32_t calcDelay(uint32_t height)
   return height * 2;
 }
 
-bool moveStepper()
+bool moveStepper(direction)
 {
-
-}
-
-//-----------------------------------------------------------------------------//
-
-void raise_fun()
-{
-  // Send response after getting request to raise platform
-  uartDataTx((uint8_t*)cmdToRaise, sizeof(uint8_t));
-
-  // Turn on electromagnet to catch the ball
-  HAL_GPIO_WritePin(MAGNET_GPIO_Port, MAGNET_Pin, GPIO_PIN_SET);
-
   // Set the stepper direction
-  HAL_GPIO_WritePin(DIR_GPIO_Port, DIR_Pin, GPIO_PIN_RESET);
+  HAL_GPIO_WritePin(DIR_GPIO_Port, DIR_Pin, direction);
 
   // Get time from serial
   uint8_t height;
@@ -135,6 +122,20 @@ void raise_fun()
 
   // Stop stepper
   HAL_TIM_PWM_Stop(&htim3, TIM_CHANNEL_3);
+}
+
+//-----------------------------------------------------------------------------//
+
+void raise_fun()
+{
+  // Send response after getting request to raise platform
+  uartDataTx((uint8_t*)cmdToRaise, sizeof(uint8_t));
+
+  // Turn on electromagnet to catch the ball
+  HAL_GPIO_WritePin(MAGNET_GPIO_Port, MAGNET_Pin, GPIO_PIN_SET);
+
+  // Move stepper
+  moveStepper(GPIO_PIN_RESET);
 
   // Send response after raising the platform
   uartDataTx((uint8_t*)cmdRaised, sizeof(uint8_t));
@@ -154,31 +155,15 @@ void drop_fun()
   HAL_Delay(1000);
 
   // Photocell
-
+  
   // Send the data from ADC
   uartDataTx((uint8_t*)adcValue, sizeof(uint8_t));
 
-  // Return the position of the electromagnet using stepper
-  HAL_GPIO_WritePin(DIR_GPIO_Port, DIR_Pin, GPIO_PIN_SET); 				//kierunek krokowki
-  HAL_Delay(100);
-
-  // Stop getting the data
-  uint32_t delay = calcDelay(currentHeight);
-  HAL_TIM_PWM_Start(&htim3, TIM_CHANNEL_3);                  			//wlaczenie pwm 100hz
-  HAL_Delay(delay);                                          			//czas trwania pwm
-  HAL_TIM_PWM_Stop(&htim3, TIM_CHANNEL_3);
+  // Move stepper to initial position
+  moveStepper(GPIO_PIN_SET);
 
   // Send response of the drop end
   uartDataTx(&cmdDropped, sizeof(uint32_t));
-}
-
-void testSTM()
-{
-	// Test Stepper
-
-	// Test electromagnet
-	// Test ADC
-	// Test photocell
 }
 
 /* USER CODE END 0 */
