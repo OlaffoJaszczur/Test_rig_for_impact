@@ -32,8 +32,10 @@
 
 typedef enum cmd_t
 {
-  cmd_raise = 1234,
-  cmd_drop = 2345,
+  cmdToRaise = 1234,
+  cmdToDrop = 5678,
+  cmdRaised = 4321,
+  cmdDropped = 8765
 } cmd_t;
 
 /* USER CODE END PTD */
@@ -76,16 +78,16 @@ static void MX_USART1_UART_Init(void);
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
 
-uint32_t currentHeight = 0;
-
 //-----------------------------------------------------------------------------//
 
+// Transmit data on UART
 bool uartDataTx(uint8_t *data, uint16_t size)
 {
   HAL_UART_Transmit(&huart1, data, size, 1000);
   return true;
 }
 
+// Receive data on UART
 bool uartDataRx(uint8_t *data, uint16_t size)
 {
   HAL_UART_Receive(&huart1, data, size, HAL_MAX_DELAY);
@@ -96,46 +98,87 @@ bool uartDataRx(uint8_t *data, uint16_t size)
 
 uint32_t calcDelay(uint32_t height)
 {
-	// TODO: Get proper timing
+  // TODO: Get time amount of stepper with given height, input here for proper calculation of delay
   return height * 2;
+}
+
+bool moveStepper()
+{
+
 }
 
 //-----------------------------------------------------------------------------//
 
 void raise_fun()
 {
-  uint32_t response = 1234;
-  uartDataTx(&response, sizeof(uint32_t));
-  HAL_GPIO_WritePin(MAGNET_GPIO_Port, MAGNET_Pin, GPIO_PIN_SET); //zlap
-  HAL_GPIO_WritePin(DIR_GPIO_Port, DIR_Pin, GPIO_PIN_RESET); //kierunek krokowki
-  uint32_t height = 100;
-  currentHeight = height;
+  // Send response after getting request to raise platform
+  uartDataTx((uint8_t*)cmdToRaise, sizeof(uint8_t));
+
+  // Turn on electromagnet to catch the ball
+  HAL_GPIO_WritePin(MAGNET_GPIO_Port, MAGNET_Pin, GPIO_PIN_SET);
+
+  // Set the stepper direction
+  HAL_GPIO_WritePin(DIR_GPIO_Port, DIR_Pin, GPIO_PIN_RESET);
+
+  // Get time from serial
+  uint8_t height;
+  uartDataRx(&height, sizeof(uint8_t));
+
+  // Calculate the time for the delay during raising platform
   uint32_t delay = calcDelay(height);
-  HAL_TIM_PWM_Start(&htim3, TIM_CHANNEL_3);                  //wlaczenie pwm 100hz
-  HAL_Delay(delay);                                          //czas trwania pwm
+
+  // Turn on the PWM for the stepper (100 Hz)
+  HAL_TIM_PWM_Start(&htim3, TIM_CHANNEL_3);
+
+  // Time duration of the PWM (calculated using calcDelay())
+  HAL_Delay(delay);
+
+  // Stop stepper
   HAL_TIM_PWM_Stop(&htim3, TIM_CHANNEL_3);
-  response = 1111;                                           //response raise done
-  uartDataTx(&response, sizeof(uint32_t));
+
+  // Send response after raising the platform
+  uartDataTx((uint8_t*)cmdRaised, sizeof(uint8_t));
 }
 
 void drop_fun()
 {
-  //start get
-  uint32_t adcValue[1000]; //stm32 adc dma
+  // Send response after getting request to drop the ball
+  uartDataTx((uint8_t*)cmdToDrop, sizeof(uint8_t));
+
+  // Start reading data from ADC DMA
+  uint32_t adcValue[1000];
   HAL_ADC_Start_DMA(&hadc1, &adcValue, 1000);
-  HAL_GPIO_WritePin(MAGNET_GPIO_Port, MAGNET_Pin, GPIO_PIN_RESET); //drop
+
+  // Release the electromagnet to drop the ball
+  HAL_GPIO_WritePin(MAGNET_GPIO_Port, MAGNET_Pin, GPIO_PIN_RESET);
   HAL_Delay(1000);
-  //zbieranie danych
-  //wysylanie danych
-  HAL_GPIO_WritePin(DIR_GPIO_Port, DIR_Pin, GPIO_PIN_SET); //kierunek krokowki
+
+  // Photocell
+
+  // Send the data from ADC
+  uartDataTx((uint8_t*)adcValue, sizeof(uint8_t));
+
+  // Return the position of the electromagnet using stepper
+  HAL_GPIO_WritePin(DIR_GPIO_Port, DIR_Pin, GPIO_PIN_SET); 				//kierunek krokowki
   HAL_Delay(100);
-  //stop get data
+
+  // Stop getting the data
   uint32_t delay = calcDelay(currentHeight);
-  HAL_TIM_PWM_Start(&htim3, TIM_CHANNEL_3);                  //wlaczenie pwm 100hz
-  HAL_Delay(delay);                                          //czas trwania pwm
+  HAL_TIM_PWM_Start(&htim3, TIM_CHANNEL_3);                  			//wlaczenie pwm 100hz
+  HAL_Delay(delay);                                          			//czas trwania pwm
   HAL_TIM_PWM_Stop(&htim3, TIM_CHANNEL_3);
-uint32_t response = 2222;                                    //response drop done
-  uartDataTx(&response, sizeof(uint32_t));
+
+  // Send response of the drop end
+  uartDataTx(&cmdDropped, sizeof(uint32_t));
+}
+
+void testSTM()
+{
+	// Test Stepper
+
+	// Test electromagnet
+	// Test ADC
+	// Test photocell
 }
 
 /* USER CODE END 0 */
@@ -186,17 +229,18 @@ int main(void)
 
     /* USER CODE BEGIN 3 */
 
-    uint32_t cmd;
-
+	// Wait for command from GUI
+    uint8_t cmd;
     uartDataRx(&cmd, 4);
 
+    // Command handling
     switch (cmd)
     {
-    case cmd_raise:
+    case cmdToRaise:
       raise_fun();
       break;
 
-    case cmd_drop:
+    case cmdToDrop:
       drop_fun();
       break;
 

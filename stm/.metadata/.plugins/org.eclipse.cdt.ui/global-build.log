@@ -1,26 +1,9 @@
-18:17:26 **** Incremental Build of configuration Debug for project src ****
+18:18:36 **** Incremental Build of configuration Debug for project src ****
 make -j24 all 
 arm-none-eabi-gcc "../Core/Src/main.c" -mcpu=cortex-m3 -std=gnu11 -g3 -DDEBUG -DUSE_HAL_DRIVER -DSTM32F105xC -c -I../Core/Inc -I../Drivers/STM32F1xx_HAL_Driver/Inc -I../Drivers/STM32F1xx_HAL_Driver/Inc/Legacy -I../Drivers/CMSIS/Device/ST/STM32F1xx/Include -I../Drivers/CMSIS/Include -O0 -ffunction-sections -fdata-sections -Wall -fstack-usage -fcyclomatic-complexity -MMD -MP -MF"Core/Src/main.d" -MT"Core/Src/main.o" --specs=nano.specs -mfloat-abi=soft -mthumb -o "Core/Src/main.o"
-../Core/Src/main.c: In function 'raise_fun':
-../Core/Src/main.c:107:14: warning: passing argument 1 of 'uartDataTx' from incompatible pointer type [-Wincompatible-pointer-types]
-  107 |   uartDataTx(&response, sizeof(uint32_t));
-      |              ^~~~~~~~~
-      |              |
-      |              uint32_t * {aka long unsigned int *}
-../Core/Src/main.c:83:26: note: expected 'uint8_t *' {aka 'unsigned char *'} but argument is of type 'uint32_t *' {aka 'long unsigned int *'}
-   83 | bool uartDataTx(uint8_t *data, uint16_t size)
-      |                 ~~~~~~~~~^~~~
-../Core/Src/main.c:117:14: warning: passing argument 1 of 'uartDataTx' from incompatible pointer type [-Wincompatible-pointer-types]
-  117 |   uartDataTx(&response, sizeof(uint32_t));
-      |              ^~~~~~~~~
-      |              |
-      |              uint32_t * {aka long unsigned int *}
-../Core/Src/main.c:83:26: note: expected 'uint8_t *' {aka 'unsigned char *'} but argument is of type 'uint32_t *' {aka 'long unsigned int *'}
-   83 | bool uartDataTx(uint8_t *data, uint16_t size)
-      |                 ~~~~~~~~~^~~~
 ../Core/Src/main.c: In function 'drop_fun':
-../Core/Src/main.c:124:29: warning: passing argument 2 of 'HAL_ADC_Start_DMA' from incompatible pointer type [-Wincompatible-pointer-types]
-  124 |   HAL_ADC_Start_DMA(&hadc1, &adcValue, 1000);
+../Core/Src/main.c:144:29: warning: passing argument 2 of 'HAL_ADC_Start_DMA' from incompatible pointer type [-Wincompatible-pointer-types]
+  144 |   HAL_ADC_Start_DMA(&hadc1, &adcValue, 1000);
       |                             ^~~~~~~~~
       |                             |
       |                             uint32_t (*)[1000] {aka long unsigned int (*)[1000]}
@@ -31,38 +14,29 @@ In file included from ../Core/Inc/stm32f1xx_hal_conf.h:274,
 ../Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal_adc.h:928:78: note: expected 'uint32_t *' {aka 'long unsigned int *'} but argument is of type 'uint32_t (*)[1000]' {aka 'long unsigned int (*)[1000]'}
   928 | HAL_StatusTypeDef       HAL_ADC_Start_DMA(ADC_HandleTypeDef* hadc, uint32_t* pData, uint32_t Length);
       |                                                                    ~~~~~~~~~~^~~~~
-../Core/Src/main.c:137:14: warning: passing argument 1 of 'uartDataTx' from incompatible pointer type [-Wincompatible-pointer-types]
-  137 |   uartDataTx(&response, sizeof(uint32_t));
+../Core/Src/main.c:157:14: warning: passing argument 1 of 'uartDataTx' from incompatible pointer type [-Wincompatible-pointer-types]
+  157 |   uartDataTx(&response, sizeof(uint32_t));
       |              ^~~~~~~~~
       |              |
       |              uint32_t * {aka long unsigned int *}
-../Core/Src/main.c:83:26: note: expected 'uint8_t *' {aka 'unsigned char *'} but argument is of type 'uint32_t *' {aka 'long unsigned int *'}
-   83 | bool uartDataTx(uint8_t *data, uint16_t size)
+../Core/Src/main.c:86:26: note: expected 'uint8_t *' {aka 'unsigned char *'} but argument is of type 'uint32_t *' {aka 'long unsigned int *'}
+   86 | bool uartDataTx(uint8_t *data, uint16_t size)
       |                 ~~~~~~~~~^~~~
 ../Core/Src/main.c: In function 'main':
-../Core/Src/main.c:192:16: warning: passing argument 1 of 'uartDataRx' from incompatible pointer type [-Wincompatible-pointer-types]
-  192 |     uartDataRx(&cmd, 4);
-      |                ^~~~
-      |                |
-      |                uint32_t * {aka long unsigned int *}
-../Core/Src/main.c:89:26: note: expected 'uint8_t *' {aka 'unsigned char *'} but argument is of type 'uint32_t *' {aka 'long unsigned int *'}
-   89 | bool uartDataRx(uint8_t *data, uint16_t size)
-      |                 ~~~~~~~~~^~~~
+../Core/Src/main.c:220:5: warning: case label value exceeds maximum value for type [-Wswitch-outside-range]
+  220 |     case cmdToRaise:
+      |     ^~~~
+../Core/Src/main.c:224:5: warning: case label value exceeds maximum value for type [-Wswitch-outside-range]
+  224 |     case cmdToDrop:
+      |     ^~~~
 arm-none-eabi-gcc -o "src.elf" @"objects.list"   -mcpu=cortex-m3 -T"D:\Software Engineering\Git\repo\Test_rig_for_impact\stm\src\STM32F105R8TX_FLASH.ld" --specs=nosys.specs -Wl,-Map="src.map" -Wl,--gc-sections -static --specs=nano.specs -mfloat-abi=soft -mthumb -Wl,--start-group -lc -lm -Wl,--end-group
 Finished building target: src.elf
  
 arm-none-eabi-size  src.elf 
 arm-none-eabi-objdump -h -S src.elf  > "src.list"
    text	   data	    bss	    dec	    hex	filename
-  17084	     12	   1908	  19004	   4a3c	src.elf
+  14592	     12	   1908	  16512	   4080	src.elf
 Finished building: default.size.stdout
  
 Finished building: src.list
- 
-18:21:08 **** Incremental Build of configuration Debug for project src ****
-make -j24 all 
-arm-none-eabi-size  src.elf 
-   text	   data	    bss	    dec	    hex	filename
-  17084	     12	   1908	  19004	   4a3c	src.elf
-Finished building: default.size.stdout
  
