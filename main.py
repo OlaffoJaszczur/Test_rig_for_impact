@@ -1,6 +1,6 @@
 import tkinter as tk
-from calculations import ImpactorSimulatorCalculations
-from gui import ImpactorSimulatorGUI
+from caluclation_acceleratoin_from_file import ImpactorSimulatorCalculations
+from gui_acc_from_file import ImpactorSimulatorGUI
 from STM_Interaction_no_acceleration import STMDataInteraction
 
 

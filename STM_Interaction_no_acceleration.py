@@ -2,26 +2,26 @@ import threading
 import serial
 
 # This is a mock class for the serial connection, to be used for debugging
-class Mock_serial:
-    def write(self, data):
-        print(data)
-
-    def read(self, size):
-        value = int(input())
-
-        return value.to_bytes(size, 'big')
-
-    def close(self):
-        pass
+# class Mock_serial:
+#     def write(self, data):
+#         print(data)
+#
+#     def read(self, size):
+#         value = int(input())
+#
+#         return value.to_bytes(size, 'big')
+#
+#     def close(self):
+#         pass
 
 class STMDataInteraction:
     def __init__(self):
-        # self.serial = serial.Serial('/dev/ttyUSB0', 38400) # need to later change this, for naw using mock serial for debugging
-        self.serial = Mock_serial() # to be replaced !!!
+        self.serial = serial.Serial('/dev/ttyUSB0', 115200) # need to later change this, for naw using mock serial for debugging
+        # self.serial = Mock_serial() # to be replaced !!!
         self.thread = None
 
     def _wait_for_data(self, experiment_ended):
-        self.serial.write(int(5678).to_bytes(8, 'big'))
+        self.serial.write(int(567).to_bytes(8, 'big'))
         # self.serial.read(8)
         flaga_eksperimet_start = self.serial.read(8)
         flaga_eksperimet_start = int.from_bytes(flaga_eksperimet_start, 'big')
@@ -40,7 +40,7 @@ class STMDataInteraction:
 
 
     def _do_raise_impactor(self, on_raised, height):
-        self.serial.write(int(1234).to_bytes(8, 'big'))
+        self.serial.write(int(123).to_bytes(8, 'big'))
         # self.serial.read(8)
 
         # debug

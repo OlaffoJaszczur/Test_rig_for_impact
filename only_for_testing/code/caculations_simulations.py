@@ -3,7 +3,6 @@ import matplotlib.pyplot as plt
 import csv
 import os
 from scipy.signal import butter, lfilter
-from scipy.fftpack import rfft, irfft, fftfreq
 
 def read_csv(file_path):
     time_data = []

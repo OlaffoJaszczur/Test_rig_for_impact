@@ -16,6 +16,9 @@ class ImpactorSimulatorGUI:
         self.main_frame.bind("<<raise_impactor>>", self.impactor_risen)
         self.main_frame.bind("<<drop_impactor>>", self.impactor_dropped)
 
+        self.file_path = os.path.join(os.path.dirname(__file__), 'only_for_testing', 'data_from_simulation',
+                                      'tabelkaAcceleration.csv')
+
     def _setup_gui(self):
         self.main_frame = ttk.Frame(self.root, padding="10")
         self.main_frame.grid(row=0, column=0, sticky="nsew")
@@ -68,11 +71,10 @@ class ImpactorSimulatorGUI:
 
     def update_plot(self):
         self.ax.clear()
-        self.simulator.time_points = np.arange(1,101)  # only for testing !
-        self.ax.plot(self.simulator.time_points, self.simulator.acceleration_filtered, label="Deformation Acceleration")
+        self.ax.plot(self.test_time, 2*self.simulator.acceleration_filtered, label="Deformation Acceleration")
         self.ax.set_title("Deformation Acceleration on Steel Plate")
         self.ax.set_xlabel("Time (s)")
-        self.ax.set_ylabel("Acceleration (arbitrary units)")
+        self.ax.set_ylabel("Acceleration (m/s²)")
         self.ax.legend()
         self.canvas.draw()
 
@@ -131,9 +133,9 @@ class ImpactorSimulatorGUI:
         self.simulator.export_energy = self.simulator.current_energy
         self.simulator.current_energy = 0
 
-        def data_received(photocell_time_data, time_point):
+        def data_received(photocell_time_data, time_table):
             self.simulator.photocell_time_data = photocell_time_data
-            self.simulator.time_points = time_point
+            self.simulator.time_points = time_table
             self.main_frame.event_generate("<<drop_impactor>>")
 
         self.simulator.STM.drop_impactor(data_received)
@@ -148,21 +150,26 @@ class ImpactorSimulatorGUI:
 
         self.simulator.photocell_velocity = self.simulator.calculations.red_photocell_velocity(self.simulator.photocell_time_data)
 
+
+        [self.test_time, self.test_acceleration] = self.simulator.calculations.read_csv(self.file_path)
+        # print(self.test_time)
+        # print(self.test_acceleration)
+
         self.update_display()
 
-        self.simulator.acceleration_filtered = self.simulator.calculations.bandpass_filter(self.simulator.acceleration, 100, 2000, 2) # (data, lowcut, highcut, fs, order)
-        print(self.simulator.acceleration_filtered)
+        self.simulator.acceleration_filtered = self.simulator.calculations.bandpass_filter(self.test_acceleration, 100, 2000, 2) # (data, lowcut, highcut, order), simulation (data, 0.001, 2, 20000, 2)
+        # print(self.simulator.acceleration_filtered)
 
         self.update_plot()
 
     def export_data(self):
-        file_path = os.path.join("data", "output_data.csv")
+        file_path = os.path.join(os.path.dirname(__file__), 'data', "output_data.csv")
         with open(file_path, "w", newline="") as file:
             writer = csv.writer(file)
             writer.writerow(["Energy (J)", "Height (m)", "Mass (kg)", "Photocell Impact Velocity (m/s)", "Predicted Impact Velocity (m/s)"])
             writer.writerow([round(self.simulator.export_energy, 3), round(self.simulator.height_before_drop, 3), self.simulator.mass, round(self.simulator.calculations.red_photocell_velocity(self.simulator.photocell_time_data), 3), round(self.simulator.calculations.calculated_impact_velocity(self.simulator.calculated_drop_time(self.simulator.height_before_drop)), 3)])
             writer.writerow([])
-            writer.writerow(["Time (s)", "Deformation Acceleration (arbitrary units)", "Filtered Acceleration (arbitrary units)"])
-            for t, ra, fa in zip(self.simulator.time_points, self.simulator.acceleration, self.simulator.acceleration_filtered):
+            writer.writerow(["Time (s)", "Deformation Acceleration (m/s^2)", "Filtered Acceleration (m/s^2)"])
+            for t, ra, fa in zip(self.test_time, self.test_acceleration, self.simulator.acceleration_filtered):
                 writer.writerow([t, ra, fa])
         self.export_button.config(state="disabled")
