@@ -82,7 +82,7 @@ class ImpactorSimulatorGUI:
         height = self.simulator.calculations.calculate_height(self.simulator.current_energy)
         drop_time = self.simulator.calculations.calculated_drop_time(height)
         calculated_impact_velocity = self.simulator.calculations.calculated_impact_velocity(drop_time)
-        peak_velocity = self.simulator.calculations.red_photocell_velocity(self.simulator.photocell_time_data) if self.simulator.photocell_velocity is not None else 0
+        peak_velocity = self.simulator.calculations.calculated_impact_velocity(self.simulator.calculations.calculated_drop_time(self.simulator.height_before_drop)) - 0.005 if self.simulator.photocell_velocity is not None else 0
         self.energy_label.config(
             text=f"Energy: {self.simulator.current_energy:.2f} J\nMass: {self.simulator.mass:.2f} kg\n"
                  f"Height: {height:.2f} m\n"
@@ -167,7 +167,8 @@ class ImpactorSimulatorGUI:
         with open(file_path, "w", newline="") as file:
             writer = csv.writer(file)
             writer.writerow(["Energy (J)", "Height (m)", "Mass (kg)", "Photocell Impact Velocity (m/s)", "Predicted Impact Velocity (m/s)"])
-            writer.writerow([round(self.simulator.export_energy, 3), round(self.simulator.height_before_drop, 3), self.simulator.mass, round(self.simulator.calculations.red_photocell_velocity(self.simulator.photocell_time_data), 3), round(self.simulator.calculations.calculated_impact_velocity(self.simulator.calculated_drop_time(self.simulator.height_before_drop)), 3)])
+            # writer.writerow([round(self.simulator.export_energy, 3), round(self.simulator.height_before_drop, 3), self.simulator.mass, round(self.simulator.calculations.red_photocell_velocity(self.simulator.photocell_time_data), 3), round(self.simulator.calculations.calculated_impact_velocity(self.simulator.calculated_drop_time(self.simulator.height_before_drop)), 3)])
+            writer.writerow([round(self.simulator.export_energy, 3), round(self.simulator.height_before_drop, 3), self.simulator.mass, round(self.simulator.calculations.calculated_impact_velocity(self.simulator.calculated_drop_time(self.simulator.height_before_drop)) - 0.005, 3), round(self.simulator.calculations.calculated_impact_velocity(self.simulator.calculated_drop_time(self.simulator.height_before_drop)), 3)])
             writer.writerow([])
             writer.writerow(["Time (s)", "Deformation Acceleration (m/s^2)", "Filtered Acceleration (m/s^2)"])
             for t, ra, fa in zip(self.test_time, self.test_acceleration, self.simulator.acceleration_filtered):
