@@ -32,10 +32,10 @@
 
 typedef enum cmd_t
 {
-  cmdToRaise = 1234,
-  cmdToDrop = 5678,
-  cmdRaised = 4321,
-  cmdDropped = 8765
+  cmdToRaise = 1,
+  cmdToDrop = 2,
+  cmdRaised = 3,
+  cmdDropped = 4
 } cmd_t;
 
 /* USER CODE END PTD */
@@ -96,7 +96,7 @@ bool uartDataRx(uint8_t *data, uint16_t size)
 
 //-----------------------------------------------------------------------------//
 
-uint32_t calcDelay(uint32_t height)
+uint16_t calcDelay(uint16_t height)
 {
   // TODO: Get time amount of stepper with given height, input here for proper calculation of delay
   return height * 2;
@@ -108,11 +108,11 @@ bool moveStepper(uint32_t direction)
   HAL_GPIO_WritePin(DIR_GPIO_Port, DIR_Pin, direction);
 
   // Get time from serial
-  uint32_t height;
+  uint16_t height;
   uartDataRx(&height, sizeof(height));
 
   // Calculate the time for the delay during raising platform
-  uint32_t delay = calcDelay(height);
+  uint16_t delay = calcDelay(height);
 
   // Turn on the PWM for the stepper (100 Hz)
   HAL_TIM_PWM_Start(&htim3, TIM_CHANNEL_3);
@@ -129,7 +129,7 @@ bool moveStepper(uint32_t direction)
 void raise_fun()
 {
   // Send response after getting request to raise platform
-  uartDataTx((uint32_t*)cmdToRaise, sizeof(cmdToRaise));
+  uartDataTx((uint16_t*)cmdToRaise, sizeof(cmdToRaise));
 
   // Turn on electromagnet to catch the ball
   HAL_GPIO_WritePin(MAGNET_GPIO_Port, MAGNET_Pin, GPIO_PIN_SET);
@@ -138,17 +138,17 @@ void raise_fun()
   moveStepper(GPIO_PIN_RESET);
 
   // Send response after raising the platform
-  uartDataTx((uint32_t*)cmdRaised, sizeof(cmdRaised));
+  uartDataTx((uint16_t*)cmdRaised, sizeof(cmdRaised));
 }
 
 void drop_fun()
 {
   // Send response after getting request to drop the ball
-  uartDataTx((uint32_t*)cmdToDrop, sizeof(cmdToDrop));
+  uartDataTx((uint16_t*)cmdToDrop, sizeof(cmdToDrop));
 
   // Start reading data from ADC DMA
-  uint32_t adcValue[1000];
-  HAL_ADC_Start_DMA(&hadc1, &adcValue, 1000);
+//  uint32_t adcValue[1000];
+//  HAL_ADC_Start_DMA(&hadc1, &adcValue, 1000);
 
   // Start capturing time
   uint32_t startTime = HAL_GetTick();
@@ -158,21 +158,21 @@ void drop_fun()
   HAL_Delay(2000);
 
   // Photocell
-
+  // Send time difference from photocell
 
   // Stop capturing time and send time
   uint32_t endTime = HAL_GetTick();
   uint32_t timeDuration = endTime - startTime;
-  uartDataTx((uint32_t*)timeDuration, sizeof(timeDuration));
+  uartDataTx((uint16_t*)timeDuration, sizeof(timeDuration));
 
   // Send the data from ADC
-  uartDataTx((uint32_t*)adcValue, sizeof(adcValue));
-
+//  uartDataTx((uint16_t*)adcValue, sizeof(adcValue));
+  //	HAL_UART_Transmit(&huart1, (uint8_t*)cmdToRaise, sizeof(uint16_t), HAL_MAX_DELAY);
   // Move stepper to initial position
-  moveStepper(GPIO_PIN_SET);
+   moveStepper(GPIO_PIN_SET);
 
   // Send response of the drop end
-  uartDataTx((uint32_t*)cmdDropped, sizeof(cmdDropped));
+  uartDataTx((uint16_t*)cmdDropped, sizeof(cmdDropped));
 }
 
 /* USER CODE END 0 */
@@ -212,35 +212,50 @@ int main(void)
   MX_TIM3_Init();
   MX_USART1_UART_Init();
   /* USER CODE BEGIN 2 */
-
+//  char message[] = "Hello World!\r\n"
+//  HAL_irq_enable();
+  uint8_t errorMessage = 0;
+  HAL_GPIO_WritePin(NENABLE_GPIO_Port, NENABLE_Pin, GPIO_PIN_RESET);
+  HAL_GPIO_WritePin(NSLEEP_GPIO_Port, NSLEEP_Pin, GPIO_PIN_SET);
+  HAL_TIM_PWM_Start(&htim3, TIM_CHANNEL_3);
   /* USER CODE END 2 */
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
   while (1)
+	    // Command handling
   {
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
-
-	// Wait for command from GUI
-    uint8_t cmd;
-    uartDataRx(&cmd, sizeof(cmd));
-
-    // Command handling
-    switch (cmd)
-    {
-    case cmdToRaise:
-      raise_fun();
-      break;
-
-    case cmdToDrop:
-      drop_fun();
-      break;
-
-    default:
-      break;
-    }
+  // Set the stepper direction
+//  HAL_GPIO_WritePin(DIR_GPIO_Port, DIR_Pin, GPIO_PIN_SET);
+//  HAL_Delay(2000);
+//  HAL_TIM_PWM_Stop(&htim3, TIM_CHANNEL_3);
+//    uartDataTx((uint8_t*)cmdToRaise, sizeof(uint16_t));
+//
+//	// Wait for command from GUI
+//    uint8_t cmd;
+//    HAL_UART_Receive(&huart1, (uint8_t*)cmd, sizeof(uint16_t), HAL_MAX_DELAY);
+//
+////    uartDataRx((uint8_t*)cmd, sizeof(uint8_t));
+//
+//    // Command handling
+//    switch (cmd)
+//    {
+//    case cmdToRaise:
+//      raise_fun();
+//      break;
+//
+//    case cmdToDrop:
+//      drop_fun();
+//      break;
+//
+//    default:
+//    	uartDataTx((uint8_t*)errorMessage, sizeof(uint16_t));
+//    }
+//
+//    HAL_Delay(500);
   }
   /* USER CODE END 3 */
 }
@@ -267,8 +282,8 @@ void SystemClock_Config(void)
   RCC_OscInitStruct.PLL.PLLSource = RCC_PLLSOURCE_HSE;
   RCC_OscInitStruct.PLL.PLLMUL = RCC_PLL_MUL9;
   RCC_OscInitStruct.PLL2.PLL2State = RCC_PLL2_ON;
-  RCC_OscInitStruct.PLL2.PLL2MUL = RCC_PLL2_MUL8;
-  RCC_OscInitStruct.PLL2.HSEPrediv2Value = RCC_HSE_PREDIV2_DIV5;
+  RCC_OscInitStruct.PLL2.PLL2MUL = RCC_PLL2_MUL10;
+  RCC_OscInitStruct.PLL2.HSEPrediv2Value = RCC_HSE_PREDIV2_DIV4;
   if (HAL_RCC_OscConfig(&RCC_OscInitStruct) != HAL_OK)
   {
     Error_Handler();
@@ -488,11 +503,11 @@ static void MX_TIM3_Init(void)
 
   /* USER CODE END TIM3_Init 1 */
   htim3.Instance = TIM3;
-  htim3.Init.Prescaler = 0;
+  htim3.Init.Prescaler = 3599;
   htim3.Init.CounterMode = TIM_COUNTERMODE_UP;
-  htim3.Init.Period = 65535;
+  htim3.Init.Period = 1000;
   htim3.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
-  htim3.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;
+  htim3.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_ENABLE;
   if (HAL_TIM_Base_Init(&htim3) != HAL_OK)
   {
     Error_Handler();
@@ -513,7 +528,7 @@ static void MX_TIM3_Init(void)
     Error_Handler();
   }
   sConfigOC.OCMode = TIM_OCMODE_PWM1;
-  sConfigOC.Pulse = 0;
+  sConfigOC.Pulse = 500;
   sConfigOC.OCPolarity = TIM_OCPOLARITY_HIGH;
   sConfigOC.OCFastMode = TIM_OCFAST_DISABLE;
   if (HAL_TIM_PWM_ConfigChannel(&htim3, &sConfigOC, TIM_CHANNEL_3) != HAL_OK)
