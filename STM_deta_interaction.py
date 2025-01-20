@@ -21,8 +21,8 @@ class STMDataInteraction:
         self.thread = None
 
     def _wait_for_data(self, experiment_ended):
-        self.serial.write(b'2')
-        self.serial.read(1)
+        self.serial.write(int(5678).to_bytes(8, 'big'))
+        self.serial.read(8)
         acceleration_table = []
 
         while True:
@@ -38,12 +38,12 @@ class STMDataInteraction:
 
 
     def _do_raise_impactor(self, on_raised, height):
-        self.serial.write(int(1234).to_bytes(4, 'big'))
-        self.serial.read(4)
+        self.serial.write(int(1234).to_bytes(8, 'big'))
+        self.serial.read(8)
         height = int(height * 1000)
         print(height)
-        self.serial.write(height.to_bytes(4, 'big'))
-        self.serial.read(1)
+        self.serial.write(height.to_bytes(8, 'big'))
+        self.serial.read(8)
         on_raised()
 
     def rasie_impactor(self, on_raised, height):

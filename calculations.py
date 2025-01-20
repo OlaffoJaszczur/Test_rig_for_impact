@@ -1,6 +1,6 @@
 import numpy as np
 from numpy.fft import fft
-from scipy.signal import butter, filtfilt
+from scipy.signal import butter, lfilter
 
 import csv
 
@@ -21,21 +21,6 @@ class ImpactorSimulatorCalculations:
 
     def red_photocell_velocity(self, photocell_time_data):
         return self.GRAVITY * photocell_time_data  # probably will have to change as time will be provided in milisecons
-
-    def fft_of_acceleration(self, acceleration):
-        return fft(acceleration)
-
-    def butter_bandpass(self, lowcut, highcut, fs, order=2):
-        nyq = 0.5 * fs  # Nyquist Frequency
-        low = lowcut / nyq
-        high = highcut / nyq
-        b, a = butter(order, [low, high], btype='band')
-        return b, a
-
-    def bandpass_filter(self, data, lowcut, highcut, fs, order=2):
-        b, a = self.butter_bandpass(lowcut, highcut, fs, order=order)
-        self.filtered_data = filtfilt(b, a, data)
-        return np.abs(self.filtered_data)
 
     # zrobic band pass 100Hz to 200kHz
     # pasmo można wiziąc z symulacji od grzesia
