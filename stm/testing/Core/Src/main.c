@@ -42,7 +42,7 @@ typedef enum cmd_t
 
 /* Private define ------------------------------------------------------------*/
 /* USER CODE BEGIN PD */
-
+#define RX_BUFFER_SIZE 100 // Size of the reception buffer
 /* USER CODE END PD */
 
 /* Private macro -------------------------------------------------------------*/
@@ -77,6 +77,8 @@ static void MX_USART1_UART_Init(void);
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
+uint8_t rxBuffer[RX_BUFFER_SIZE]; // Buffer to store received data
+uint8_t receivedByte;             // Variable to store a single received byte
 
 //-----------------------------------------------------------------------------//
 
@@ -174,7 +176,25 @@ void drop_fun()
   // Send response of the drop end
   uartDataTx((uint16_t*)cmdDropped, sizeof(cmdDropped));
 }
+// Callback function called when a byte is received
+void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart) {
+    if (huart->Instance == USART1) { // Check if the interrupt is from the correct UART instance
+        static uint16_t index = 0;
 
+        // Store the received byte in the buffer
+        rxBuffer[index++] = receivedByte;
+
+        // Check if the buffer is full or a newline character is received
+        if (index >= RX_BUFFER_SIZE || receivedByte == '\n') {
+            // Handle the complete message here
+            HAL_UART_Transmit(&huart1, rxBuffer, index, HAL_MAX_DELAY); // Echo back the message
+            index = 0; // Reset the index for the next message
+        }
+
+        // Restart UART reception in interrupt mode
+        HAL_UART_Receive_IT(&huart1, &receivedByte, 1);
+    }
+}
 /* USER CODE END 0 */
 
 /**
@@ -212,33 +232,39 @@ int main(void)
   MX_TIM3_Init();
   MX_USART1_UART_Init();
   /* USER CODE BEGIN 2 */
-//  char message[] = "Hello World!\r\n"
-//  HAL_irq_enable();
-  uint8_t errorMessage = 0;
-  HAL_GPIO_WritePin(NENABLE_GPIO_Port, NENABLE_Pin, GPIO_PIN_RESET);
-  HAL_GPIO_WritePin(NSLEEP_GPIO_Port, NSLEEP_Pin, GPIO_PIN_SET);
-  HAL_TIM_PWM_Start(&htim3, TIM_CHANNEL_3);
-  /* USER CODE END 2 */
 
+//  HAL_GPIO_WritePin(NENABLE_GPIO_Port, NENABLE_Pin, GPIO_PIN_RESET);
+//  HAL_GPIO_WritePin(NSLEEP_GPIO_Port, NSLEEP_Pin, GPIO_PIN_SET);
+//  HAL_TIM_PWM_Start(&htim3, TIM_CHANNEL_3);
+  /* USER CODE END 2 */
+//  uint8_t cmd = 1;
+
+  char msg[] = "Hello World!\r\n";
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
   while (1)
-	    // Command handling
   {
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
-  // Set the stepper direction
-//  HAL_GPIO_WritePin(DIR_GPIO_Port, DIR_Pin, GPIO_PIN_SET);
-//  HAL_Delay(2000);
-//  HAL_TIM_PWM_Stop(&htim3, TIM_CHANNEL_3);
-//    uartDataTx((uint8_t*)cmdToRaise, sizeof(uint16_t));
-//
-//	// Wait for command from GUI
-//    uint8_t cmd;
-//    HAL_UART_Receive(&huart1, (uint8_t*)cmd, sizeof(uint16_t), HAL_MAX_DELAY);
-//
-////    uartDataRx((uint8_t*)cmd, sizeof(uint8_t));
+//	  HAL_UART_Receive(&huart1, (uint8_t*)msg, sizeof(msg), HAL_MAX_DELAY);
+	  uint8_t command[1];
+	  HAL_UART_Receive(&huart1, &command, sizeof(uint16_t), HAL_MAX_DELAY);
+
+	  while(1)
+	  {
+	      HAL_UART_Transmit(&huart1, (uint8_t*)msg, sizeof(msg), HAL_MAX_DELAY);
+	      HAL_Delay(500);
+	  }
+
+//	// Wait for command from GUI) ) ) )
+//    uint8_t cmd[1];
+////    uartDataRx(&cmd, sizeof(uint16_t));
+//    HAL_UART_Receive(&huart1, &cmd, sizeof(uint16_t), HAL_MAX_DELAY);
+//    while(1)
+//    {
+//    	uartDataTx(&cmd, sizeof(uint16_t));
+//    }
 //
 //    // Command handling
 //    switch (cmd)
@@ -252,7 +278,7 @@ int main(void)
 //      break;
 //
 //    default:
-//    	uartDataTx((uint8_t*)errorMessage, sizeof(uint16_t));
+//      break;
 //    }
 //
 //    HAL_Delay(500);
@@ -505,7 +531,7 @@ static void MX_TIM3_Init(void)
   htim3.Instance = TIM3;
   htim3.Init.Prescaler = 3599;
   htim3.Init.CounterMode = TIM_COUNTERMODE_UP;
-  htim3.Init.Period = 1000;
+  htim3.Init.Period = 249;
   htim3.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
   htim3.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_ENABLE;
   if (HAL_TIM_Base_Init(&htim3) != HAL_OK)
@@ -528,7 +554,7 @@ static void MX_TIM3_Init(void)
     Error_Handler();
   }
   sConfigOC.OCMode = TIM_OCMODE_PWM1;
-  sConfigOC.Pulse = 500;
+  sConfigOC.Pulse = 72;
   sConfigOC.OCPolarity = TIM_OCPOLARITY_HIGH;
   sConfigOC.OCFastMode = TIM_OCFAST_DISABLE;
   if (HAL_TIM_PWM_ConfigChannel(&htim3, &sConfigOC, TIM_CHANNEL_3) != HAL_OK)
