@@ -62,7 +62,7 @@ def plot_frequency_spectrum(time_data, acceleration_data, fs):
     plt.show()
 
 # Read the data from the CSV file
-file_path = os.path.join(os.path.dirname(__file__), '..', 'data_from_simulation', 'tabelkaAcceleration.csv')
+file_path = os.path.join(os.path.dirname(__file__), '..', 'data_from_simulation', 'acc_sim_1_m.csv')
 time_data, acceleration_data = read_csv(file_path)
 
 # Sampling frequency (fs)

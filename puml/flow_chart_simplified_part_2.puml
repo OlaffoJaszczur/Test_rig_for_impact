@@ -1,0 +1,15 @@
+@startuml
+'https://plantuml.com/component-diagram
+
+start
+:Start gathering data;
+:Stop stop gathering data;
+:Plot acquired data;
+if (User can choose to export data to CSV) then (Yes)
+:On application exit export data to CSV;
+else (no)
+endif
+:Exit application;
+stop
+
+@enduml

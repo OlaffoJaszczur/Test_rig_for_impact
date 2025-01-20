@@ -1,0 +1,27 @@
+@startuml
+'https://plantuml.com/component-diagram
+
+
+start
+:Start application;
+while (Await user input) is (false)
+endwhile (true)
+:User can change parameters;
+:Raise the Impactor;
+while (Impactor fully raised) is (false)
+endwhile (true)
+:Ready to drop;
+while (Await user activation) is (false)
+endwhile (true)
+:Drop Impactor;
+:Start gathering data;
+:Stop stop gathering data;
+:Plot acquired data;
+if (User can choose to export data to CSV) then (Yes)
+:On application exit export data to CSV;
+else (no)
+endif
+:Exit application;
+stop
+
+@enduml

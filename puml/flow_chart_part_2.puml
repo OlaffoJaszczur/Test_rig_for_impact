@@ -1,0 +1,53 @@
+@startuml
+'https://plantuml.com/activity-diagram-beta
+
+/'start
+:ClickServlet.handleRequest();
+:new page;
+if (Page.onSecurityCheck) then (true)
+  :Page.onInit();
+  if (isForward?) then (no)
+    :Process controls;
+    if (continue processing?) then (no)
+      stop
+    endif
+
+    if (isPost?) then (yes)
+      :Page.onPost();
+    else (no)
+      :Page.onGet();
+    endif
+    :Page.onRender();
+  endif
+else (false)
+endif
+
+if (do redirect?) then (yes)
+  :redirect process;
+else
+  if (do forward?) then (yes)
+    :Forward request;
+  else (no)
+    :Render page template;
+  endif
+endif
+
+stop'/
+
+start
+while (Await user activation) is (false)
+endwhile (true)
+:Drop Impactor;
+:Start recording accelerometr data;
+:Record data from photocell;
+:Wait for a flag change;
+:Stop recording accelerometr data;
+:Plot acquired data;
+if (User can choose to export data to CSV) then (Yes)
+:On application exit export data to CSV;
+else (no)
+endif
+:Exit application;
+stop
+
+@enduml

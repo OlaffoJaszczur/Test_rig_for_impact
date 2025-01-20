@@ -9,7 +9,7 @@ class ImpactorSimulatorCalculations:
     def __init__(self, mass, GRAVITY):
         self.mass = mass
         self.GRAVITY = GRAVITY
-        self.file_path = os.path.join(os.path.dirname(__file__), 'only_for_testing', 'data_from_simulation', 'tabelkaAcceleration.csv')
+        self.file_path = os.path.join(os.path.dirname(__file__), 'only_for_testing', 'data_from_simulation', 'acc_sim_1_m.csv')
         self.time_data, self.acceleration_data = self.read_csv(self.file_path)
 
         # Sampling frequency (fs)

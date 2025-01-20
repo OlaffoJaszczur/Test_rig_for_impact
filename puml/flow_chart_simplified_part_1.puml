@@ -1,0 +1,19 @@
+@startuml
+'https://plantuml.com/component-diagram
+
+
+start
+:Start application;
+while (Await user input) is (false)
+endwhile (true)
+:User can change parameters;
+:Raise the Impactor;
+while (Impactor fully raised) is (false)
+endwhile (true)
+:Ready to drop;
+while (Await user activation) is (false)
+endwhile (true)
+:Drop Impactor;
+stop
+
+@enduml

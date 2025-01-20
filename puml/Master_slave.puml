@@ -2,7 +2,7 @@
 'https://plantuml.com/sequence-diagram
 
 autonumber
-Master_python -> Slave_c: Raise the Impactor (message)
+Master_python -> Slave_c: Raise the Impactor (1)
 Slave_c --> Master_python: Response that comand was succesful (message)
 
 Master_python -> Slave_c: Height to which raise the Impactor [int]

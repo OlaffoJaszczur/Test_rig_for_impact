@@ -46,19 +46,7 @@ endwhile (true)
 while (Impactor fully raised) is (false)
 endwhile (true)
 :Ready to drop;
-while (Await user activation) is (false)
-endwhile (true)
-:Start recording accelerometr data;
-:Drop Impactor;
-:Record data from photocell;
-:Wait for a flag change;
-:Stop recording accelerometr data;
-:Plot acquired data;
-if (User can choose to export data to CSV) then (Yes)
-:On application exit export data to CSV;
-else (no)
-endif
-:Exit application;
+
 stop
 
 @enduml

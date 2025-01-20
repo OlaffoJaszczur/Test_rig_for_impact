@@ -17,7 +17,7 @@ class ImpactorSimulatorGUI:
         self.main_frame.bind("<<drop_impactor>>", self.impactor_dropped)
 
         self.file_path = os.path.join(os.path.dirname(__file__), 'only_for_testing', 'data_from_simulation',
-                                      'tabelkaAcceleration.csv')
+                                      'acc_sim_1_m.csv')
 
     def _setup_gui(self):
         self.main_frame = ttk.Frame(self.root, padding="10")
