@@ -158,6 +158,7 @@ class ImpactorSimulatorGUI:
 
         self.update_display()
 
+        # aaa
         self.simulator.acceleration_filtered = self.simulator.calculations.bandpass_filter(self.test_acceleration, 100, 2000, 2) # (data, lowcut, highcut, order), simulation (data, 0.001, 2, 20000, 2)
         # print(self.simulator.acceleration_filtered)
 

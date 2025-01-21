@@ -40,6 +40,7 @@ class STMDataInteraction:
         # flaga_eksperimet_start = int.from_bytes(flaga_eksperimet_start, 'big')
         # print(flaga_eksperimet_start)
 
+        # aaa
         photocell_time_data = int.from_bytes(self.serial.read(4), 'little')
         photocell_time_data = photocell_time_data/1000
         # photocell_time_data = 4467 / 1000
