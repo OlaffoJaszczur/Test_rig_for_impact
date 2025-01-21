@@ -2,17 +2,17 @@ import threading
 import serial
 
 # This is a mock class for the serial connection, to be used for debugging
-# class Mock_serial:
-#     def write(self, data):
-#         print(data)
-#
-#     def read(self, size):
-#         value = int(input())
-#
-#         return value.to_bytes(size, 'big')
-#
-#     def close(self):
-#         pass
+class Mock_serial:
+    def write(self, data):
+        print(data)
+
+    def read(self, size):
+        value = int(input())
+
+        return value.to_bytes(size, 'big')
+
+    def close(self):
+        pass
 
 class Even_Worse_Mock_serial:
     def write(self, data):
@@ -27,21 +27,22 @@ class Even_Worse_Mock_serial:
 
 class STMDataInteraction:
     def __init__(self):
-        # self.serial = serial.Serial('/dev/ttyUSB0', 115200) # need to later change this, for naw using mock serial for debugging
-        # self.serial = Mock_serial() # to be replaced !!!
-        self.serial = Even_Worse_Mock_serial() # to be replaced even more !!!
+        self.serial = serial.Serial('/dev/ttyUSB0', 115200) # need to later change this, for naw using mock serial for debugging
+        self.serial_mock = Mock_serial() # to be replaced !!!
+        self.serial_mock_worse = Even_Worse_Mock_serial() # to be replaced even more !!!
         # self.serial = serial.Serial('/dev/ttyACM0', 115200)
         self.thread = None
 
     def _wait_for_data(self, experiment_ended):
-        self.serial.write(int(456).to_bytes(4, 'big'))
+        # self.serial.write(int(456).to_bytes(4, 'big'))
         # self.serial.read(8)
         # flaga_eksperimet_start = self.serial.read(4)
         # flaga_eksperimet_start = int.from_bytes(flaga_eksperimet_start, 'big')
         # print(flaga_eksperimet_start)
 
-        # photocell_time_data = int.from_bytes(self.serial.read(4), 'big')
-        photocell_time_data = 1
+        photocell_time_data = int.from_bytes(self.serial.read(4), 'little')
+        photocell_time_data = photocell_time_data/1000
+        # photocell_time_data = 4467 / 1000
         print(photocell_time_data)
         # end_time = int.from_bytes(self.serial.read(4), 'big')
         end_time = 2
@@ -55,7 +56,7 @@ class STMDataInteraction:
 
 
     def _do_raise_impactor(self, on_raised, height):
-        self.serial.write(int(1234).to_bytes(4, 'big'))
+        self.serial_mock_worse.write(int(1234).to_bytes(4, 'big'))
         # self.serial.read(8)
 
         # debug
@@ -66,7 +67,7 @@ class STMDataInteraction:
 
         height = int(height * 1000)
         print(height)
-        self.serial.write(height.to_bytes(4, 'big'))
+        self.serial_mock_worse.write(height.to_bytes(4, 'big'))
         # self.serial.read(8)
         # flaga_odioracza_inpacktor_rased = self.serial.read(4)
         # flaga_odioracza_inpacktor_rased = int.from_bytes(flaga_odioracza_inpacktor_rased, 'big')
