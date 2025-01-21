@@ -45,6 +45,9 @@ class STMDataInteraction:
         photocell_time_data = photocell_time_data/1000
         # photocell_time_data = 4467 / 1000
         print(photocell_time_data)
+        if photocell_time_data > 5:
+            photocell_time_data = 4.467
+        print(photocell_time_data)
         # end_time = int.from_bytes(self.serial.read(4), 'big')
         end_time = 2
         print(end_time)
@@ -67,7 +70,7 @@ class STMDataInteraction:
         # print(flaga_odioracza_1234)
 
         height = int(height * 1000)
-        print(height)
+        # print(height)
         self.serial_mock_worse.write(height.to_bytes(4, 'big'))
         # self.serial.read(8)
         # flaga_odioracza_inpacktor_rased = self.serial.read(4)
