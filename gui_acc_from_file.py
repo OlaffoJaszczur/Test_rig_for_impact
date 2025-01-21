@@ -151,8 +151,6 @@ class ImpactorSimulatorGUI:
 
         self.simulator.photocell_velocity = self.simulator.photocell_time_data
         # print(self.simulator.photocell_velocity)
-        if self.simulator.photocell_velocity < 5:
-            self.simulator.photocell_velocity = 4.467
 
         [self.test_time, self.test_acceleration] = self.simulator.calculations.read_csv(self.file_path)
         # print(self.test_time)

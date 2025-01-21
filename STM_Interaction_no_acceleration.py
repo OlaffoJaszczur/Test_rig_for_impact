@@ -42,6 +42,7 @@ class STMDataInteraction:
 
         # aaa
         photocell_time_data = int.from_bytes(self.serial.read(4), 'little')
+        # photocell_time_data = int.from_bytes(self.serial_mock.read(4), 'little') # mock
         photocell_time_data = photocell_time_data/1000
         # photocell_time_data = 4467 / 1000
         print(photocell_time_data)
