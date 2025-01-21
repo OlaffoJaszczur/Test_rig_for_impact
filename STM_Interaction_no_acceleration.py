@@ -9,7 +9,7 @@ class Mock_serial:
     def read(self, size):
         value = int(input())
 
-        return value.to_bytes(size, 'big')
+        return value.to_bytes(size, 'little')
 
     def close(self):
         pass
