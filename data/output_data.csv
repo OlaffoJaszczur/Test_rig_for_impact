@@ -1,5 +1,5 @@
 Energy (J),Height (m),Mass (kg),Photocell Impact Velocity (m/s),Predicted Impact Velocity (m/s)
-10.0,1.019,1.0,4.467,4.472
+9.793,0.998,1.0,4.467,4.426
 
 Time (s),Deformation Acceleration (m/s^2),Filtered Acceleration (m/s^2)
 0.0,0.0,0.0

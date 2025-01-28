@@ -131,9 +131,10 @@ class ImpactorSimulatorGUI:
         self.simulator.export_energy = self.simulator.current_energy
         self.simulator.current_energy = 0
 
-        def data_received(photocell_time_data, time_point):
+        def data_received(photocell_time_data, time_point, acceleration_table):
             self.simulator.photocell_time_data = photocell_time_data
             self.simulator.time_points = time_point
+            self.acceleration_table = acceleration_table
             self.main_frame.event_generate("<<drop_impactor>>")
 
         self.simulator.STM.drop_impactor(data_received)

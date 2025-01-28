@@ -2,13 +2,13 @@
 'https://plantuml.com/sequence-diagram
 
 autonumber
-Master_python -> Slave_c: Raise the Impactor (1)
+Master_python -> Slave_c: Raise the Impactor (message: int=123)
 Slave_c --> Master_python: Response that comand was succesful (message)
 
 Master_python -> Slave_c: Height to which raise the Impactor [int]
 Slave_c --> Master_python: Response that Impartor have been raised to designated height (message)
 
-Master_python -> Slave_c: Drop the Impactor (message)
+Master_python -> Slave_c: Drop the Impactor (message: int=456)
 Slave_c --> Master_python: Response that Impactor was detached (message)
 
 Slave_c --> Master_python: Send time difference from photocell [int]

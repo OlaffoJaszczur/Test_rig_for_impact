@@ -125,7 +125,7 @@ class ImpactorSimulatorGUI:
         self.simulator.STM.rasie_impactor(lambda: self.main_frame.event_generate("<<raise_impactor>>"), height)
 
     def impactor_risen(self, event):
-        # time.sleep(3)
+        time.sleep(20)
         self.drop_button.config(state="normal")
 
     def drop_impactor(self):
